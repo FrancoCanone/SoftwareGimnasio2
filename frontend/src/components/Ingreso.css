@@ -1,0 +1,132 @@
+.ingreso-pantalla {
+  position: fixed;
+  inset: 0;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.ingreso-form {
+  text-align: center;
+}
+
+.ingreso-icono {
+  width: 375px;
+  height: auto;
+  margin-bottom: 20px;
+  opacity: 1;
+}
+
+.ingreso-form p {
+  color: #6b7280;
+  margin: 0 0 24px;
+  font-size: 18px;
+}
+
+.ingreso-form input {
+  font-size: 32px;
+  text-align: center;
+  padding: 16px 24px;
+  border-radius: 10px;
+  border: 2px solid #d1d5db;
+  background: #f9fafb;
+  color: #111827;
+  width: 340px;
+  max-width: 80vw;
+  box-sizing: border-box;
+}
+
+.ingreso-form input:focus {
+  outline: none;
+  border-color: #16a34a;
+}
+
+.ingreso-cargando {
+  margin-top: 16px;
+  color: #9ca3af;
+}
+
+.ingreso-card {
+  background: white;
+  border: 2px solid black;
+  border-radius: 6px;
+  width: 700px;
+  max-width: 92vw;
+  overflow: hidden;
+}
+
+.ingreso-banner {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 42px;
+  text-align: center;
+  padding: 16px;
+  color: black;
+  border-bottom: 2px solid black;
+}
+
+.ingreso-banner-aceptado {
+  background: rgb(0, 170, 0);
+}
+
+.ingreso-banner-rechazado {
+  background: rgb(200, 0, 0);
+}
+
+.ingreso-datos {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 24px 8px;
+}
+
+.ingreso-datos-icono {
+  width: 80px;
+  height: 80px;
+  border: 1px solid black;
+  flex-shrink: 0;
+}
+
+.ingreso-info p {
+  display: flex;
+  gap: 40px;
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  color: black;
+  margin: 4px 0;
+}
+
+.ingreso-mensaje {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 28px;
+  text-align: center;
+  color: black;
+  margin: 12px 0 4px;
+  padding: 0 20px;
+}
+
+.ingreso-contador {
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  text-align: center;
+  color: #4b5563;
+  margin: 8px 0 16px;
+}
+
+.ingreso-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 32px;
+  font-family: Arial, sans-serif;
+  font-weight: 800;
+  font-size: 28px;
+  color: #111827;
+}
+

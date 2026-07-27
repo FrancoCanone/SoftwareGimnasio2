@@ -1,0 +1,71 @@
+.panel-cargando {
+  padding: 24px;
+  color: #64748b;
+}
+
+.panel-alerta {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.panel-vacio {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.tabla-panel {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabla-panel th {
+  text-align: left;
+  color: #64748b;
+  font-weight: 600;
+  padding: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tabla-panel td {
+  padding: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #111827;
+}
+
+.estado-ok {
+  color: #166534;
+  background: #dcfce7;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.estado-error {
+  color: #991b1b;
+  background: #fee2e2;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.panel-detalle {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.tabla-scroll {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.tabla-scroll thead th {
+  position: sticky;
+  top: 0;
+  background: white;
+}
