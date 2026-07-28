@@ -251,3 +251,11 @@ button {
   width: 100%;
   order: -1;
 }
+
+.etiqueta-version {
+  display: block;
+  text-align: center;
+  color: #6b7280;
+  font-size: 11px;
+  padding: 12px 0 4px;
+}

@@ -9,7 +9,7 @@ import { cerrarPrograma, abrirModoIngreso } from './api/sistema'
 import ToastContainer from './components/ToastContainer'
 import ConfirmDialogHost from './components/ConfirmDialogHost'
 import { confirmar } from './lib/confirmar'
-import AvisoActualizacion from './components/AvisoActualizacion'
+import AvisoActualizacion, { EtiquetaVersion } from './components/AvisoActualizacion'
 import './App.css'
 
 function App() {
@@ -62,8 +62,9 @@ function App() {
           </button>
           <button className="nav-cerrar" onClick={manejarCerrarPrograma}>Cerrar programa</button>
         </nav>
+        <EtiquetaVersion />
       </aside>
-
+      
       <section className="content">
         {vista === 'clientes' ? (
           <ClienteForm />

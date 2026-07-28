@@ -45,4 +45,18 @@ function AvisoActualizacion() {
   )
 }
 
+export function EtiquetaVersion() {
+  const [version, setVersion] = useState(null)
+
+  useEffect(() => {
+    obtenerEstadoActualizacion()
+      .then((datos) => setVersion(datos.versionActual))
+      .catch(() => {})
+  }, [])
+
+  if (!version) return null
+
+  return <small className="etiqueta-version">v{version}</small>
+}
+
 export default AvisoActualizacion
