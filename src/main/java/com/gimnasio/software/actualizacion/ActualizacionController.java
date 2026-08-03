@@ -34,10 +34,24 @@ public class ActualizacionController {
     }
 
     @PostMapping("/aplicar")
-    public void aplicar() throws Exception {
-        if (!servicio.isListaParaInstalar()) return;
+    public java.util.Map<String, Object> aplicar() {
+        java.util.Map<String, Object> resultado = new java.util.LinkedHashMap<>();
 
-        new ProcessBuilder(servicio.getRutaInstalador(), "/quiet", "/norestart").start();
+        if (!servicio.isListaParaInstalar()) {
+            resultado.put("ok", false);
+            resultado.put("mensaje", "No hay ninguna actualizacion lista para instalar.");
+            return resultado;
+        }
+
+        try {
+            new ProcessBuilder(servicio.getRutaInstalador(), "/quiet", "/norestart").start();
+        } catch (Exception e) {
+            System.out.println("ERROR al lanzar el instalador: " + e.getMessage());
+            e.printStackTrace();
+            resultado.put("ok", false);
+            resultado.put("mensaje", "No se pudo iniciar el instalador: " + e.getMessage());
+            return resultado;
+        }
 
         new Thread(() -> {
             try {
@@ -47,5 +61,8 @@ public class ActualizacionController {
             int codigoSalida = SpringApplication.exit(contexto, () -> 0);
             System.exit(codigoSalida);
         }).start();
+
+        resultado.put("ok", true);
+        return resultado;
     }
 }

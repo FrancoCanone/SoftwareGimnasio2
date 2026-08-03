@@ -15,3 +15,11 @@ export async function registrarAsistencia(clienteId) {
   }
   return respuesta.json()
 }
+
+export async function obtenerTotalHistorico() {
+  const respuesta = await fetch(`${BASE_URL}/total-historico`)
+  if (!respuesta.ok) {
+    throw new Error('No se pudo obtener el total de asistencias')
+  }
+  return respuesta.json()
+}

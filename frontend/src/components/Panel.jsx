@@ -25,6 +25,7 @@ function Panel() {
   const [cuotasVencidas, setCuotasVencidas] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
+  
 
   useEffect(() => {
     async function cargarDatos(esPrimeraVez) {
@@ -38,6 +39,7 @@ function Panel() {
           (a, b) => new Date(a.fechaHora) - new Date(b.fechaHora)
         )
 
+        
         setTotalClientes(clientes.length)
         setAsistenciasHoy(asistenciasOrdenadas)
         setCuotasVencidas(vencidas)
@@ -88,34 +90,34 @@ function Panel() {
 
       <section className="work-area">
         <div className="panel">
-          <h2>Asistencias de hoy</h2>
+          <h2>Asistencias de hoy <span className="panel-contador">({new Set(asistenciasHoy.map((a) => a.cliente.id)).size})</span></h2>
           {asistenciasHoy.length === 0 ? (
             <p className="panel-vacio">Todavia no hay asistencias registradas hoy.</p>
           ) : (
             <div className="tabla-scroll">
               <table className="tabla-panel">
                 <thead>
-                  <tr>
-                    <th>Cliente</th>
-                    <th>Hora</th>
-                    <th>Estado</th>
-                    <th>Detalle</th>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Hora</th>
+                  <th>Estado</th>
+                  <th>Asistencias totales</th>
+                </tr>
+              </thead>
+              <tbody>
+                {asistenciasHoy.map((asistencia) => (
+                  <tr key={asistencia.id}>
+                    <td>{asistencia.cliente.nombre} {asistencia.cliente.apellido}</td>
+                    <td>{formatearHora(asistencia.fechaHora)}</td>
+                    <td>
+                      <span className={asistencia.estado === 'ACEPTADO' ? 'estado-ok' : 'estado-error'}>
+                        {asistencia.estado}
+                      </span>
+                    </td>
+                    <td className="panel-detalle">{asistencia.visitasTotales}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {asistenciasHoy.map((asistencia) => (
-                    <tr key={asistencia.id}>
-                      <td>{asistencia.cliente.nombre} {asistencia.cliente.apellido}</td>
-                      <td>{formatearHora(asistencia.fechaHora)}</td>
-                      <td>
-                        <span className={asistencia.estado === 'ACEPTADO' ? 'estado-ok' : 'estado-error'}>
-                          {asistencia.estado}
-                        </span>
-                      </td>
-                      <td className="panel-detalle">{formatearObservacion(asistencia.observacion)}</td>
-                    </tr>
-                  ))}
-                </tbody>
+                ))}
+              </tbody>
               </table>
             </div>
           )}

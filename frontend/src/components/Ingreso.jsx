@@ -210,7 +210,11 @@ function Ingreso() {
   }
 
   return (
-    <div className="ingreso-pantalla" onDoubleClick={alternarPantallaCompleta}>
+    <div
+        className="ingreso-pantalla"
+        onDoubleClick={alternarPantallaCompleta}
+        onClick={() => { if (!resultado) enfocarInput() }}>
+          
       <div className="ingreso-topbar">
         <span>{fechaCompleta}</span>
         <span>{horaActual}</span>
@@ -219,7 +223,7 @@ function Ingreso() {
       
       {!resultado && (
         <form className="ingreso-form" onSubmit={manejarEnvio}>
-          <img src="/IMAGEM-GYM.jpg" alt="Imagen Gimnasio" className="ingreso-icono" />
+          <img src="/LOGO-PNG2.jpg" alt="Imagen Gimnasio" className="ingreso-icono" />
           <p>Escribí tu DNI</p>
           <input
             ref={inputRef}

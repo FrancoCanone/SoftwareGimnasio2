@@ -259,3 +259,11 @@ button {
   font-size: 11px;
   padding: 12px 0 4px;
 }
+
+input,
+textarea,
+select {
+  background-color: white;
+  color: #111827;
+  color-scheme: light;
+}

@@ -32,6 +32,15 @@ public class AsistenciaController {
         this.controlMolineteService = controlMolineteService;
     }
 
+    @GetMapping("/total-historico")
+    public java.util.Map<String, Long> totalHistorico() {
+        long total = asistenciaRepository.findAll().stream()
+                .map(a -> a.getCliente().getId() + "-" + a.getFechaHora().toLocalDate())
+                .distinct()
+                .count();
+        return java.util.Map.of("total", total);
+    }
+
     @GetMapping
     public List<Asistencia> listar() {
         return asistenciaRepository.findAll();
@@ -43,11 +52,29 @@ public class AsistenciaController {
     }
 
     @GetMapping("/hoy")
-    public List<Asistencia> listarHoy() {
+    public List<AsistenciaHoyResponse> listarHoy() {
         LocalDate hoy = LocalDate.now();
         LocalDateTime inicio = hoy.atStartOfDay();
         LocalDateTime fin = hoy.atTime(23, 59, 59);
-        return asistenciaRepository.findByFechaHoraBetweenOrderByFechaHoraDesc(inicio, fin);
+        List<Asistencia> asistencias = asistenciaRepository.findByFechaHoraBetweenOrderByFechaHoraDesc(inicio, fin);
+
+        return asistencias.stream()
+                .map(a -> new AsistenciaHoyResponse(
+                        a.getId(),
+                        a.getCliente(),
+                        a.getFechaHora(),
+                        a.getEstado(),
+                        a.getObservacion(),
+                        contarVisitasTotales(a.getCliente().getId())
+                ))
+                .toList();
+    }
+
+    private long contarVisitasTotales(Long clienteId) {
+        return asistenciaRepository.findByClienteIdOrderByFechaHoraDesc(clienteId).stream()
+                .map(a -> a.getFechaHora().toLocalDate())
+                .distinct()
+                .count();
     }
 
     @PostMapping("/registrar/{clienteId}")

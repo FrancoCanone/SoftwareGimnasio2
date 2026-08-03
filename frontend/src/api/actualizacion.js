@@ -5,5 +5,7 @@ export async function obtenerEstadoActualizacion() {
 }
 
 export async function aplicarActualizacion() {
-  await fetch('/api/actualizacion/aplicar', { method: 'POST' }).catch(() => {})
+  const respuesta = await fetch('/api/actualizacion/aplicar', { method: 'POST' })
+  const cuerpo = await respuesta.json().catch(() => ({ ok: false, mensaje: 'Respuesta invalida del servidor' }))
+  return cuerpo
 }

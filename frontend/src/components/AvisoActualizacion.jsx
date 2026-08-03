@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { obtenerEstadoActualizacion, aplicarActualizacion } from '../api/actualizacion'
 import { confirmar } from '../lib/confirmar'
+import { notificarError } from '../lib/toasts'
 import './AvisoActualizacion.css'
 
 function AvisoActualizacion() {
@@ -30,7 +31,14 @@ function AvisoActualizacion() {
     if (!confirmado) return
 
     setAplicando(true)
-    await aplicarActualizacion()
+    const resultado = await aplicarActualizacion()
+
+    if (!resultado.ok) {
+      notificarError(resultado.mensaje || 'No se pudo aplicar la actualizacion')
+      setAplicando(false)
+    }
+    // si resultado.ok es true, el backend se va a cerrar solo en 1 segundo,
+    // no hace falta hacer nada mas aca
   }
 
   if (!estado || !estado.listaParaInstalar) return null
