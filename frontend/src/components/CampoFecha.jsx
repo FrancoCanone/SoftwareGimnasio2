@@ -36,6 +36,7 @@ function CampoFecha({ label, value, onChange, error, required = false, maxDate, 
         minDate={minDate}
         placeholderText="dd/mm/aaaa"
         className={error ? 'con-error' : ''}
+        
       />
       {error && <small className="cliente-form-error">{error}</small>}
     </label>
