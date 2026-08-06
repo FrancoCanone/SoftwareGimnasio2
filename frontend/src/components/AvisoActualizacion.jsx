@@ -45,12 +45,17 @@ function AvisoActualizacion() {
 
   return (
     <div className="aviso-actualizacion">
-      <span>Version {estado.versionDisponible} disponible</span>
-      <button onClick={manejarAplicar} disabled={aplicando}>
+      <div className="aviso-actualizacion-icono">✓</div>
+      <div className="aviso-actualizacion-texto">
+        <strong>Actualización disponible</strong>
+        <span>Versión {estado.versionDisponible} lista para instalar</span>
+      </div>
+      <button onClick={manejarAplicar} disabled={aplicando} className="aviso-actualizacion-boton">
         {aplicando ? 'Instalando...' : 'Actualizar ahora'}
       </button>
     </div>
   )
+
 }
 
 export function EtiquetaVersion() {

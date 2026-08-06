@@ -28,7 +28,9 @@ public class ActualizacionService {
     private volatile String rutaInstalador;
     private volatile String error;
 
-    private final HttpClient cliente = HttpClient.newHttpClient();
+    private final HttpClient cliente = HttpClient.newBuilder()
+            .followRedirects(HttpClient.Redirect.NORMAL)
+            .build();
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Scheduled(initialDelay = 30000, fixedRate = 3600000)
@@ -81,22 +83,32 @@ public class ActualizacionService {
 
     private void descargarInstalador(String url, String version) {
         descargando = true;
+        File destino = null;
         try {
             File carpeta = new File(System.getProperty("user.home"), ".imagengym/actualizaciones");
             carpeta.mkdirs();
-            File destino = new File(carpeta, "ImagenGym-" + version + ".exe");
+            destino = new File(carpeta, "ImagenGym-" + version + ".exe");
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .timeout(Duration.ofMinutes(5))
                     .build();
 
-            cliente.send(request, HttpResponse.BodyHandlers.ofFile(destino.toPath()));
+            HttpResponse<java.nio.file.Path> respuesta =
+                    cliente.send(request, HttpResponse.BodyHandlers.ofFile(destino.toPath()));
+
+            if (respuesta.statusCode() != 200 || destino.length() < 1_000_000) {
+                destino.delete();
+                error = "La descarga parece incompleta o invalida (HTTP " + respuesta.statusCode()
+                        + ", " + destino.length() + " bytes). Se descarta y se reintenta en el proximo chequeo.";
+                return;
+            }
 
             rutaInstalador = destino.getAbsolutePath();
             listaParaInstalar = true;
             System.out.println("Actualizacion " + version + " descargada y lista para instalar.");
         } catch (Exception e) {
+            if (destino != null) destino.delete();
             error = "No se pudo descargar la actualizacion: " + e.getMessage();
         } finally {
             descargando = false;
