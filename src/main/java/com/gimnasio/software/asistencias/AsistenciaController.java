@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/asistencias")
@@ -33,12 +35,9 @@ public class AsistenciaController {
     }
 
     @GetMapping("/total-historico")
-    public java.util.Map<String, Long> totalHistorico() {
-        long total = asistenciaRepository.findAll().stream()
-                .map(a -> a.getCliente().getId() + "-" + a.getFechaHora().toLocalDate())
-                .distinct()
-                .count();
-        return java.util.Map.of("total", total);
+    public Map<String, Long> totalHistorico() {
+        long total = asistenciaRepository.contarVisitasTotalesHistorico();
+        return Map.of("total", total);
     }
 
     @GetMapping
@@ -58,6 +57,16 @@ public class AsistenciaController {
         LocalDateTime fin = hoy.atTime(23, 59, 59);
         List<Asistencia> asistencias = asistenciaRepository.findByFechaHoraBetweenOrderByFechaHoraDesc(inicio, fin);
 
+        List<Long> clienteIds = asistencias.stream()
+                .map(a -> a.getCliente().getId())
+                .distinct()
+                .toList();
+
+        Map<Long, Long> visitasPorCliente = clienteIds.isEmpty()
+                ? Map.of()
+                : asistenciaRepository.contarVisitasPorClientes(clienteIds).stream()
+                        .collect(Collectors.toMap(VisitasPorCliente::getClienteId, VisitasPorCliente::getVisitas));
+
         return asistencias.stream()
                 .map(a -> new AsistenciaHoyResponse(
                         a.getId(),
@@ -65,16 +74,9 @@ public class AsistenciaController {
                         a.getFechaHora(),
                         a.getEstado(),
                         a.getObservacion(),
-                        contarVisitasTotales(a.getCliente().getId())
+                        visitasPorCliente.getOrDefault(a.getCliente().getId(), 0L)
                 ))
                 .toList();
-    }
-
-    private long contarVisitasTotales(Long clienteId) {
-        return asistenciaRepository.findByClienteIdOrderByFechaHoraDesc(clienteId).stream()
-                .map(a -> a.getFechaHora().toLocalDate())
-                .distinct()
-                .count();
     }
 
     @PostMapping("/registrar/{clienteId}")

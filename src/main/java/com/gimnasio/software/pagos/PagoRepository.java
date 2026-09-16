@@ -23,4 +23,9 @@ public interface PagoRepository extends JpaRepository<Pago, Long> {
         ORDER BY p.fechaVencimiento DESC
     """)
     List<Pago> findCuotasVencidas(@Param("hoy") LocalDate hoy, @Param("desde") LocalDate desde);
+
+    // Plata cobrada por mes (suma de "monto" agrupada por mes de fechaPago).
+    @Query(value = "SELECT DATE_FORMAT(fecha_pago, '%Y-%m') AS mes, SUM(monto) AS total " +
+            "FROM pagos WHERE fecha_pago >= :desde GROUP BY mes ORDER BY mes", nativeQuery = true)
+    List<IngresoMensual> ingresosPorMes(@Param("desde") LocalDate desde);
 }
