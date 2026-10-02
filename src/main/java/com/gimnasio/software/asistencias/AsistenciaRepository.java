@@ -20,16 +20,18 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Long> {
             "FROM asistencias WHERE cliente_id IN :clienteIds GROUP BY cliente_id", nativeQuery = true)
     List<VisitasPorCliente> contarVisitasPorClientes(@Param("clienteIds") List<Long> clienteIds);
 
-    // Total de asistencias aceptadas por mes (para el grafico de asistencias por mes).
     @Query(value = "SELECT DATE_FORMAT(fecha_hora, '%Y-%m') AS mes, COUNT(*) AS total " +
             "FROM asistencias WHERE estado = 'ACEPTADO' AND fecha_hora >= :desde " +
             "GROUP BY mes ORDER BY mes", nativeQuery = true)
     List<AsistenciaMensual> asistenciasPorMes(@Param("desde") LocalDateTime desde);
 
-    // Ranking de clientes con mas asistencias aceptadas, desde una fecha, limitado a "limite" resultados.
     @Query(value = "SELECT c.id AS clienteId, c.nombre AS nombre, c.apellido AS apellido, COUNT(*) AS total " +
             "FROM asistencias a JOIN clientes c ON c.id = a.cliente_id " +
             "WHERE a.estado = 'ACEPTADO' AND a.fecha_hora >= :desde " +
             "GROUP BY c.id, c.nombre, c.apellido ORDER BY total DESC LIMIT :limite", nativeQuery = true)
     List<TopAsistidor> topAsistidores(@Param("desde") LocalDateTime desde, @Param("limite") int limite);
+
+    // Cuenta clientes DISTINTOS que asistieron al menos una vez desde una fecha (no cuenta visitas repetidas).
+    @Query(value = "SELECT COUNT(DISTINCT cliente_id) FROM asistencias WHERE estado = 'ACEPTADO' AND fecha_hora >= :desde", nativeQuery = true)
+    long contarClientesDistintos(@Param("desde") LocalDateTime desde);
 }

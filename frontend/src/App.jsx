@@ -4,6 +4,7 @@ import ClienteForm from './components/ClienteForm'
 import Planes from './components/Planes'
 import Pagos from './components/Pagos'
 import ClientesLista from './components/ClientesLista'
+import Estadisticas from './components/Estadisticas'
 import IndicadorIngreso from './components/IndicadorIngreso'
 import { cerrarPrograma, abrirModoIngreso } from './api/sistema'
 import ToastContainer from './components/ToastContainer'
@@ -25,7 +26,7 @@ function App() {
     try {
       await cerrarPrograma()
     } catch {
-      // es esperable que la conexion se corte antes de la respuesta, el proceso ya se esta cerrando
+      
     }
 
     window.close()
@@ -36,10 +37,9 @@ function App() {
       <AvisoActualizacion />
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark">IG</span>
+            <img src="IMAGEM-GYM.jpg" alt="Imagen Gym" className="brand-mark" />
           <div>
             <strong>Imagen Gym</strong>
-            <small>Sistema de gestion</small>
           </div>
         </div>
 
@@ -49,6 +49,7 @@ function App() {
           <button className={vista === 'planes' ? 'active' : ''} onClick={() => setVista('planes')}>Planes</button>
           <button className={vista === 'pagos' ? 'active' : ''} onClick={() => setVista('pagos')}>Registro de Pagos</button>
           <button className={vista === 'lista-clientes' ? 'active' : ''} onClick={() => setVista('lista-clientes')}>Ver clientes</button>
+          <button className={vista === 'estadisticas' ? 'active' : ''} onClick={() => setVista('estadisticas')}>Estadisticas</button>
           <button
               className="nav-link-externo nav-boton-ingreso"
               disabled={abriendoIngreso}
@@ -74,6 +75,8 @@ function App() {
           <Pagos />
         ) : vista === 'lista-clientes' ? (
           <ClientesLista />
+        ) : vista === 'estadisticas' ? (
+          <Estadisticas />
         ) : (
           <Panel />
         )}

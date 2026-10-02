@@ -23,3 +23,11 @@ export async function obtenerTotalHistorico() {
   }
   return respuesta.json()
 }
+
+export async function obtenerAsistenciasDeCliente(clienteId) {
+  const respuesta = await fetch(`${BASE_URL}/cliente/${clienteId}`)
+  if (!respuesta.ok) {
+    throw new Error('No se pudieron cargar las asistencias del cliente')
+  }
+  return respuesta.json()
+}

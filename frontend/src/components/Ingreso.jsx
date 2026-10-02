@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { buscarClientePorDni } from '../api/clientes'
-import { registrarAsistencia } from '../api/asistencias'
+import { registrarAsistencia, obtenerAsistenciasDeCliente } from '../api/asistencias'
 import { obtenerUltimoPagoCliente } from '../api/pagos'
 import { marcarIngresoActivo, marcarIngresoCerrado } from '../api/sistema'
 import './Ingreso.css'
@@ -164,20 +164,26 @@ function Ingreso() {
       const ultimoPago = await obtenerUltimoPagoCliente(cliente.id)
 
       if (!ultimoPago) {
+        const asistenciasPrevias = await obtenerAsistenciasDeCliente(cliente.id)
+        const visitasReales = asistenciasPrevias.filter((a) => a.estado === 'ACEPTADO').length
         setResultado({
           permitido: false,
           nombre: cliente.nombre,
           apellido: cliente.apellido,
           dni: cliente.dni,
           plan: null,
+          visitas: visitasReales,
           mensajeEstado: 'SIN PAGO',
         })
         iniciarCuentaRegresiva()
         return
       }
+      
 
       const asistencia = await registrarAsistencia(cliente.id)
       const permitido = asistencia.estado === 'ACEPTADO'
+      const asistenciasPrevias = await obtenerAsistenciasDeCliente(cliente.id)
+      const visitasReales = asistenciasPrevias.filter((a) => a.estado === 'ACEPTADO').length
 
       const canalEventos = new BroadcastChannel('gimnasio-eventos')
       canalEventos.postMessage({ tipo: 'asistencia-registrada' })
@@ -189,6 +195,7 @@ function Ingreso() {
         apellido: cliente.apellido,
         dni: cliente.dni,
         plan: ultimoPago.plan.nombre,
+        visitas: visitasReales,
         mensajeEstado: permitido
           ? `SE VENCE EL ${formatearFecha(ultimoPago.fechaVencimiento)}`
           : `CUOTA VENCIDA EL ${formatearFecha(ultimoPago.fechaVencimiento)}`,
@@ -257,6 +264,12 @@ function Ingreso() {
               </p>
             </div>
           </div>
+
+            {typeof resultado.visitas === 'number' && (
+              <p className="ingreso-visitas">
+                Asistencias totales: <strong>{resultado.visitas}</strong>
+              </p>
+            )}
 
           <p className="ingreso-mensaje">{resultado.mensajeEstado}</p>
 
