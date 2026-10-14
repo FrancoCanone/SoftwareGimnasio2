@@ -1,43 +1,68 @@
-* {
-  box-sizing: border-box;
-}
-
+/* =========================================================
+   Base
+   ========================================================= */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f3f5f7;
-  color: #1f2933;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
 }
 
 button {
   font: inherit;
 }
 
+input,
+textarea,
+select {
+  background-color: var(--surface);
+  color: var(--text);
+  color-scheme: light;
+}
+
+.icono {
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   Estructura: barra lateral + contenido
+   ========================================================= */
 .app {
   min-height: 100vh;
   display: flex;
 }
 
 .sidebar {
-  width: 260px;
-  background: #111827;
+  width: 264px;
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
   color: white;
-  padding: 24px;
+  padding: 22px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .brand {
   display: flex;
   gap: 12px;
   align-items: center;
-  margin-bottom: 32px;
+  padding: 0 8px;
+  margin-bottom: 28px;
 }
 
 .brand-mark {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   object-fit: cover;
   flex-shrink: 0;
+  background: white;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 .brand strong,
@@ -45,35 +70,152 @@ button {
   display: block;
 }
 
+.brand strong {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
 .brand small {
-  color: #9ca3af;
-  margin-top: 4px;
+  color: var(--sidebar-text);
+  font-size: 12px;
+  margin-top: 1px;
 }
 
 .nav {
   display: grid;
-  gap: 8px;
+  gap: 4px;
 }
 
-.nav button {
+.nav button,
+.nav-link-externo,
+.nav-cerrar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
   border: 0;
   background: transparent;
-  color: #d1d5db;
+  color: var(--sidebar-text);
   text-align: left;
-  padding: 12px;
-  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  position: relative;
+  transition: background-color 0.15s, color 0.15s;
 }
 
-.nav button.active,
-.nav button:hover {
-  background: #1f2937;
+.nav button:hover,
+.nav-link-externo:hover:not(:disabled) {
+  background: var(--sidebar-hover);
   color: white;
+}
+
+.nav button.active {
+  background: var(--sidebar-activo);
+  color: white;
+  font-weight: 600;
+}
+
+.nav button.active .icono {
+  color: var(--sidebar-acento);
+}
+
+/* Marca verde a la izquierda del item activo */
+.nav button.active::before {
+  content: '';
+  position: absolute;
+  left: -14px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--sidebar-acento);
+}
+
+.sidebar-pie {
+  margin-top: auto;
+  padding-top: 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.nav-link-externo {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  text-decoration: none;
+}
+
+.nav-link-externo span:not(.indicador-punto) {
+  flex: 1;
+}
+
+.nav-link-externo:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.indicador-punto {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.indicador-activo {
+  background: #34c76e;
+  box-shadow: 0 0 0 3px rgba(52, 199, 110, 0.25);
+  animation: indicador-pulso 2s ease-in-out infinite;
+}
+
+.indicador-inactivo {
+  background: #e25555;
+  box-shadow: 0 0 0 3px rgba(226, 85, 85, 0.2);
+}
+
+@keyframes indicador-pulso {
+  50% {
+    box-shadow: 0 0 0 6px rgba(52, 199, 110, 0);
+  }
+}
+
+.nav-cerrar {
+  color: #f2a3a3;
+}
+
+.nav-cerrar:hover {
+  background: rgba(208, 58, 58, 0.16);
+  color: #ffc9c9;
+}
+
+.etiqueta-version {
+  display: block;
+  text-align: center;
+  color: #6f7d75;
+  font-size: 11px;
+  padding: 8px 0 0;
 }
 
 .content {
   flex: 1;
-  padding: 28px;
+  min-width: 0;
+  padding: 28px clamp(16px, 3vw, 40px) 40px;
+  animation: vista-entrada 0.28s var(--ease) backwards;
+}
+
+.content-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@keyframes vista-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 }
 
 .topbar {
@@ -86,65 +228,278 @@ button {
 
 .topbar h1 {
   margin: 0;
-  font-size: 30px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .topbar p {
-  margin: 6px 0 0;
-  color: #64748b;
+  margin: 4px 0 0;
+  color: var(--text-2);
+}
+
+/* =========================================================
+   Botones (compartidos por todas las pantallas)
+   ========================================================= */
+.primary,
+.actions button,
+.planes-boton,
+.planes-boton-secundario,
+.cliente-form-boton,
+.confirm-boton-peligro,
+.aviso-actualizacion-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+
+.primary:active,
+.planes-boton:active,
+.planes-boton-secundario:active,
+.cliente-form-boton:active,
+.confirm-boton-peligro:active,
+.aviso-actualizacion-boton:active {
+  transform: translateY(1px);
+}
+
+.primary:disabled,
+.planes-boton:disabled,
+.planes-boton-secundario:disabled,
+.cliente-form-boton:disabled,
+.aviso-actualizacion-boton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .primary,
-.actions button {
-  border: 0;
-  background: #16a34a;
+.actions button,
+.planes-boton,
+.cliente-form-boton,
+.aviso-actualizacion-boton {
+  background: var(--accent);
   color: white;
-  padding: 11px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(14, 138, 65, 0.3);
 }
 
+.primary:hover:not(:disabled),
+.planes-boton:hover:not(:disabled),
+.cliente-form-boton:hover:not(:disabled),
+.aviso-actualizacion-boton:hover:not(:disabled) {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 12px -2px rgba(14, 138, 65, 0.4);
+}
+
+.planes-boton-secundario {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.planes-boton-secundario:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--text-3);
+}
+
+.confirm-boton-peligro {
+  background: var(--danger);
+  color: white;
+}
+
+.confirm-boton-peligro:hover {
+  background: var(--danger-hover);
+}
+
+/* =========================================================
+   Campos de formulario (compartidos)
+   ========================================================= */
+.planes-campo input,
+.planes-campo textarea,
+.planes-campo select,
+.cliente-form-campo input,
+.cliente-form-campo textarea,
+.cliente-form-campo select,
+.react-datepicker__input-container input,
+.clientes-lista-buscador,
+.estadisticas-selector {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.planes-campo input:hover,
+.planes-campo textarea:hover,
+.planes-campo select:hover,
+.cliente-form-campo input:hover,
+.cliente-form-campo textarea:hover,
+.react-datepicker__input-container input:hover,
+.clientes-lista-buscador:hover,
+.estadisticas-selector:hover {
+  border-color: var(--text-3);
+}
+
+.planes-campo input:focus,
+.planes-campo textarea:focus,
+.planes-campo select:focus,
+.cliente-form-campo input:focus,
+.cliente-form-campo textarea:focus,
+.react-datepicker__input-container input:focus,
+.clientes-lista-buscador:focus,
+.estadisticas-selector:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-ring);
+}
+
+.planes-campo textarea,
+.cliente-form-campo textarea {
+  resize: vertical;
+  min-height: 64px;
+}
+
+.planes-campo select,
+.estadisticas-selector {
+  appearance: none;
+  padding-right: 36px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235a6860' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+input[type='checkbox'] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+}
+
+/* =========================================================
+   Tarjetas e indicadores
+   ========================================================= */
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 16px;
   margin-bottom: 16px;
 }
 
 .stats article,
 .panel {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.stats article {
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  animation: tarjeta-entrada 0.4s var(--ease) backwards;
+}
+
+.stats article:nth-child(2) { animation-delay: 0.05s; }
+.stats article:nth-child(3) { animation-delay: 0.1s; }
+.stats article:nth-child(4) { animation-delay: 0.15s; }
+
+.stats article:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(16, 24, 20, 0.04), 0 14px 30px -12px rgba(16, 24, 20, 0.2);
+}
+
+@keyframes tarjeta-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
 
 .stats span {
   display: block;
-  color: #64748b;
-  margin-bottom: 10px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
 }
 
 .stats strong {
+  display: block;
   font-size: 32px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Variante con icono (Panel principal) */
+.stats article.stat-con-icono {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-icono {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.stat-azul .stat-icono {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.stat-ambar .stat-icono {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.stat-rojo .stat-icono {
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .work-area {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   gap: 16px;
+  margin-bottom: 16px;
 }
 
-@media (max-width: 900px) {
-  .work-area {
-    grid-template-columns: 1fr;
-  }
+/* Si hay un solo panel en la fila, que ocupe todo el ancho */
+.work-area > .panel:only-child {
+  grid-column: 1 / -1;
+}
+
+.panel {
+  min-width: 0;
 }
 
 .panel h2 {
   margin: 0 0 16px;
-  font-size: 20px;
+  font-size: 17px;
 }
 
 .actions {
@@ -157,13 +512,29 @@ button {
   display: inline-block;
   margin: 0 0 10px;
   padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: 800;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
 }
 
 .status.ok {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--accent-soft);
+  color: var(--ok-text);
+}
+
+/* =========================================================
+   Pantallas chicas
+   ========================================================= */
+@media (max-width: 1150px) {
+  /* Con 4 tarjetas, mejor 2 y 2 que 3 y una suelta */
+  .stats:has(> article:nth-child(4)) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1000px) {
+  .work-area {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 850px) {
@@ -173,34 +544,40 @@ button {
 
   .sidebar {
     width: 100%;
-    padding: 16px;
+    height: auto;
+    position: static;
+    padding: 14px;
   }
 
   .brand {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 
-  .nav {
+  .nav,
+  .sidebar-pie {
     display: flex;
     flex-direction: row;
     overflow-x: auto;
-    gap: 8px;
+    gap: 6px;
     padding-bottom: 6px;
     -webkit-overflow-scrolling: touch;
   }
 
-  .nav button {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    padding: 10px 14px;
+  .sidebar-pie {
+    margin-top: 6px;
+    padding-top: 0;
   }
 
-  .nav-link-externo {
-    width: auto;
-  }
-
+  .nav button,
+  .nav-link-externo,
   .nav-cerrar {
-    margin-top: 0;
+    flex: 0 0 auto;
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .nav button.active::before {
+    display: none;
   }
 
   .etiqueta-version {
@@ -212,87 +589,11 @@ button {
   }
 
   .topbar h1 {
-    font-size: 24px;
-  }
-
-  .stats,
-  .work-area {
-    grid-template-columns: 1fr;
+    font-size: 22px;
   }
 
   .topbar {
     align-items: stretch;
     flex-direction: column;
   }
-}
-
-.nav-link-externo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  color: inherit;
-  text-decoration: none;
-  background: none;
-  border: 0;
-  padding: 10px 14px;
-  border-radius: 6px;
-  font: inherit;
-  cursor: pointer;
-  text-align: left;
-}
-
-.nav-link-externo:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.indicador-punto {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.indicador-activo {
-  background: #22c55e;
-  box-shadow: 0 0 6px #22c55e;
-}
-
-.indicador-inactivo {
-  background: #dc2626;
-  box-shadow: 0 0 6px #dc2626;
-}
-
-.nav-cerrar {
-  margin-top: auto;
-  color: #fca5a5;
-  background: none;
-  border: 1px solid rgba(252, 165, 165, 0.3);
-  padding: 10px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font: inherit;
-  text-align: left;
-}
-
-.nav-cerrar:hover {
-  background: rgba(220, 38, 38, 0.15);
-}
-
-
-
-.etiqueta-version {
-  display: block;
-  text-align: center;
-  color: #6b7280;
-  font-size: 11px;
-  padding: 12px 0 4px;
-}
-
-input,
-textarea,
-select {
-  background-color: white;
-  color: #111827;
-  color-scheme: light;
 }

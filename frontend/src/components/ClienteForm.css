@@ -1,25 +1,27 @@
 .cliente-form {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 24px;
-  max-width: 760px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px;
+  max-width: 980px;
+  box-shadow: var(--shadow);
 }
 
 .cliente-form h2 {
   margin: 0 0 4px;
-  font-size: 20px;
+  font-size: 17px;
 }
 
 .cliente-form-leyenda {
-  color: #64748b;
+  color: var(--text-2);
   font-size: 13px;
-  margin: 0 0 20px;
+  margin: 0 0 22px;
 }
 
+/* Las columnas se acomodan solas al ancho disponible: 3 en la pantalla, 2 dentro de la ventana de edicion */
 .cliente-form-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 16px;
 }
 
@@ -27,30 +29,20 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 14px;
-  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
 }
 
-.cliente-form-campo input,
-.cliente-form-campo textarea {
-  font: inherit;
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-}
-
-.cliente-form-campo input:focus,
-.cliente-form-campo textarea:focus {
-  outline: 2px solid #16a34a;
-  outline-offset: 1px;
-}
-
-.cliente-form-campo input.con-error {
-  border-color: #dc2626;
+.cliente-form-campo input.con-error,
+.react-datepicker__input-container input.con-error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 4px rgba(208, 58, 58, 0.12);
 }
 
 .cliente-form-error {
-  color: #dc2626;
+  color: var(--danger);
+  font-weight: 500;
 }
 
 .cliente-form-observaciones {
@@ -58,145 +50,114 @@
 }
 
 .cliente-form-boton {
-  margin-top: 20px;
-  border: 0;
-  background: #16a34a;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 700;
+  margin-top: 22px;
+  padding: 12px 22px;
 }
 
-.cliente-form-boton:disabled {
-  background: #86efac;
-  cursor: not-allowed;
+.cliente-form-alerta,
+.cliente-form-exito {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-size: 14px;
+  border-left: 4px solid;
 }
 
 .cliente-form-alerta {
-  background: #fee2e2;
-  color: #991b1b;
-  padding: 10px 14px;
-  border-radius: 6px;
-  margin-bottom: 16px;
+  background: var(--danger-soft);
+  color: var(--danger-text);
+  border-left-color: var(--danger);
 }
 
 .cliente-form-exito {
-  background: #dcfce7;
-  color: #166534;
-  padding: 10px 14px;
-  border-radius: 6px;
-  margin-bottom: 16px;
+  background: var(--accent-soft);
+  color: var(--ok-text);
+  border-left-color: var(--accent);
 }
 
-@media (max-width: 600px) {
-  .cliente-form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
+/* ---------- Calendario (react-datepicker) ---------- */
 .react-datepicker-wrapper {
   width: 100%;
 }
 
-.react-datepicker__input-container input {
-  width: 100%;
-  font: inherit;
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  box-sizing: border-box;
-}
-
-.react-datepicker__input-container input:focus {
-  outline: 2px solid #16a34a;
-  outline-offset: 1px;
-}
-
-.react-datepicker__input-container input.con-error {
-  border-color: #dc2626;
+.react-datepicker {
+  font-family: var(--font);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
 }
 
 .react-datepicker__header {
-  background-color: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: var(--surface-2);
+  border-bottom: 1px solid var(--border);
 }
 
 .react-datepicker__current-month {
-  color: #111827;
+  color: var(--text);
 }
 
 .react-datepicker__day-name {
-  color: #6b7280;
+  color: var(--text-2);
 }
 
 .react-datepicker__navigation-icon::before {
-  border-color: #6b7280;
+  border-color: var(--text-2);
+}
+
+.react-datepicker__day {
+  border-radius: 6px;
+}
+
+.react-datepicker__day:hover {
+  background-color: var(--accent-soft);
 }
 
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
-  background-color: #16a34a;
+  background-color: var(--accent);
+  color: white;
 }
 
 .react-datepicker__day--selected:hover {
-  background-color: #15803d;
-}
-
-.react-datepicker__year-dropdown,
-.react-datepicker__month-dropdown {
-  background-color: white;
-  color: #111827;
-  border: 1px solid #e5e7eb;
-}
-
-.react-datepicker__year-option,
-.react-datepicker__month-option {
-  color: #111827;
-}
-
-.react-datepicker__year-read-view,
-.react-datepicker__month-read-view {
-  color: #111827;
-  font-weight: 600;
-}
-
-.react-datepicker__year-read-view,
-.react-datepicker__month-read-view {
-  color: #111827;
-  font-weight: 600;
-}
-
-.react-datepicker__year-read-view--down-arrow,
-.react-datepicker__month-read-view--down-arrow {
-  border-color: #111827;
-}
-
-.react-datepicker__year-option:hover,
-.react-datepicker__month-option:hover {
-  background-color: #dcfce7;
-  color: #111827;
-}
-
-.react-datepicker__triangle::before,
-.react-datepicker__triangle::after {
-  border-bottom-color: #f9fafb !important;
-}
-
-.react-datepicker {
-  border: 1px solid #e5e7eb;
-}
-
-.react-datepicker__day:hover {
-  background-color: #dcfce7;
-}
-
-.react-datepicker__day--keyboard-selected {
-  background-color: #16a34a;
-  color: white;
+  background-color: var(--accent-hover);
 }
 
 .react-datepicker__day--outside-month {
   visibility: hidden;
   pointer-events: none;
+}
+
+.react-datepicker__year-dropdown,
+.react-datepicker__month-dropdown {
+  background-color: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.react-datepicker__year-option,
+.react-datepicker__month-option {
+  color: var(--text);
+}
+
+.react-datepicker__year-option:hover,
+.react-datepicker__month-option:hover {
+  background-color: var(--accent-soft);
+  color: var(--text);
+}
+
+.react-datepicker__year-read-view,
+.react-datepicker__month-read-view {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.react-datepicker__year-read-view--down-arrow,
+.react-datepicker__month-read-view--down-arrow {
+  border-color: var(--text);
+}
+
+.react-datepicker__triangle::before,
+.react-datepicker__triangle::after {
+  border-bottom-color: var(--surface-2) !important;
 }

@@ -20,12 +20,15 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Long> {
             "FROM asistencias WHERE cliente_id IN :clienteIds GROUP BY cliente_id", nativeQuery = true)
     List<VisitasPorCliente> contarVisitasPorClientes(@Param("clienteIds") List<Long> clienteIds);
 
-    @Query(value = "SELECT DATE_FORMAT(fecha_hora, '%Y-%m') AS mes, COUNT(*) AS total " +
-            "FROM asistencias WHERE estado = 'ACEPTADO' AND fecha_hora >= :desde " +
-            "GROUP BY mes ORDER BY mes", nativeQuery = true)
+        @Query(value = "SELECT mes, COUNT(*) AS total FROM (" +
+            "  SELECT DATE_FORMAT(fecha_hora, '%Y-%m') AS mes, cliente_id, DATE(fecha_hora) AS dia " +
+            "  FROM asistencias WHERE estado = 'ACEPTADO' AND fecha_hora >= :desde " +
+            "  GROUP BY mes, cliente_id, dia" +
+            ") AS dias_unicos GROUP BY mes ORDER BY mes", nativeQuery = true)
     List<AsistenciaMensual> asistenciasPorMes(@Param("desde") LocalDateTime desde);
 
-    @Query(value = "SELECT c.id AS clienteId, c.nombre AS nombre, c.apellido AS apellido, COUNT(*) AS total " +
+    @Query(value = "SELECT c.id AS clienteId, c.nombre AS nombre, c.apellido AS apellido, " +
+            "COUNT(DISTINCT DATE(a.fecha_hora)) AS total " +
             "FROM asistencias a JOIN clientes c ON c.id = a.cliente_id " +
             "WHERE a.estado = 'ACEPTADO' AND a.fecha_hora >= :desde " +
             "GROUP BY c.id, c.nombre, c.apellido ORDER BY total DESC LIMIT :limite", nativeQuery = true)

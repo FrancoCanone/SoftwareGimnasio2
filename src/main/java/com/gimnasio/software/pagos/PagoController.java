@@ -90,6 +90,27 @@ public List<Pago> listarVencidos() {
         return pagoRepository.save(pago);
     }
 
+    @PutMapping("/{id}")
+    public Pago actualizar(@PathVariable Long id, @RequestBody PagoRequest request) {
+        Pago pago = pagoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
+
+        Plan plan = planRepository.findById(request.planId())
+                .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
+
+        LocalDate fechaPago = request.fechaPago() != null ? request.fechaPago() : pago.getFechaPago();
+        LocalDate fechaVencimiento = fechaPago.plusDays(plan.getDuracionDias());
+
+        pago.setPlan(plan);
+        pago.setMonto(request.monto() != null ? request.monto() : plan.getPrecio());
+        pago.setMetodoPago(request.metodoPago());
+        pago.setFechaPago(fechaPago);
+        pago.setFechaVencimiento(fechaVencimiento);
+        pago.setObservaciones(request.observaciones());
+
+        return pagoRepository.save(pago);
+    }
+
     @DeleteMapping("/{id}")
     public void eliminar(@PathVariable Long id) {
         pagoRepository.deleteById(id);

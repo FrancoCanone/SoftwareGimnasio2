@@ -1,132 +1,14 @@
 .ingreso-pantalla {
   position: fixed;
   inset: 0;
-  background: white;
+  background:
+    radial-gradient(1100px 560px at 50% -10%, #dff3e7 0%, transparent 65%),
+    var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
-}
-
-.ingreso-form {
-  text-align: center;
-}
-
-.ingreso-icono {
-  width: 375px;
-  height: auto;
-  margin-bottom: 20px;
-  opacity: 1;
-}
-
-.ingreso-form p {
-  color: #6b7280;
-  margin: 0 0 24px;
-  font-size: 18px;
-}
-
-.ingreso-form input {
-  font-size: 32px;
-  text-align: center;
-  padding: 16px 24px;
-  border-radius: 10px;
-  border: 2px solid #d1d5db;
-  background: #f9fafb;
-  color: #111827;
-  width: 340px;
-  max-width: 80vw;
-  box-sizing: border-box;
-}
-
-.ingreso-form input:focus {
-  outline: none;
-  border-color: #16a34a;
-}
-
-.ingreso-cargando {
-  margin-top: 16px;
-  color: #9ca3af;
-}
-
-.ingreso-card {
-  background: white;
-  border: 2px solid black;
-  border-radius: 6px;
-  width: 920px;
-  max-width: 96vw;
-  overflow: hidden;
-}
-
-.ingreso-banner {
-  font-family: Arial, sans-serif;
-  font-weight: bold;
-  font-size: 54px;
-  text-align: center;
-  padding: 20px;
-  color: black;
-  border-bottom: 2px solid black;
-}
-
-.ingreso-banner-aceptado {
-  background: rgb(0, 170, 0);
-}
-
-.ingreso-banner-rechazado {
-  background: rgb(200, 0, 0);
-}
-
-.ingreso-datos {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 20px 24px 8px;
-}
-
-.ingreso-datos-icono {
-  width: 100px;
-  height: 100px;
-  border: 1px solid black;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.ingreso-info p {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  font-family: Arial, sans-serif;
-  font-size: 24px;
-  color: black;
-  margin: 6px 0;
-}
-
-.ingreso-visitas {
-  font-family: Arial, sans-serif;
-  font-size: 22px;
-  text-align: center;
-  color: #166534;
-  background: #dcfce7;
-  margin: 12px 24px 0;
-  padding: 8px;
-  border-radius: 6px;
-}
-
-.ingreso-mensaje {
-  font-family: Arial, sans-serif;
-  font-weight: bold;
-  font-size: 36px;
-  text-align: center;
-  color: black;
-  margin: 14px 0 4px;
-  padding: 0 20px;
-}
-
-.ingreso-contador {
-  font-family: Arial, sans-serif;
-  font-size: 13px;
-  text-align: center;
-  color: #4b5563;
-  margin: 8px 0 16px;
+  font-family: var(--font);
 }
 
 .ingreso-topbar {
@@ -136,10 +18,196 @@
   right: 0;
   display: flex;
   justify-content: space-between;
-  padding: 20px 32px;
-  font-family: Arial, sans-serif;
-  font-weight: 800;
-  font-size: 28px;
-  color: #111827;
+  padding: 22px 34px;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
+/* ---------- Pantalla de espera (pide el DNI) ---------- */
+.ingreso-form {
+  text-align: center;
+  animation: ingreso-aparecer 0.3s var(--ease);
+}
+
+.ingreso-icono {
+  width: auto;
+  height: auto;
+  max-width: min(340px, 60vw);
+  max-height: 42vh;
+  margin-bottom: 20px;
+  /* el logo es un JPG con fondo blanco: multiply hace que el blanco no se note sobre el fondo */
+  mix-blend-mode: multiply;
+}
+
+.ingreso-form p {
+  color: var(--text-2);
+  margin: 0 0 22px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.ingreso-form input {
+  font: inherit;
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 18px 24px;
+  border-radius: 18px;
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  width: 380px;
+  max-width: 80vw;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ingreso-form input::placeholder {
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.ingreso-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 6px var(--accent-ring), var(--shadow);
+}
+
+.ingreso-form .ingreso-cargando {
+  margin: 18px 0 0;
+  color: var(--text-3);
+  font-size: 16px;
+}
+
+/* ---------- Tarjeta de resultado ---------- */
+.ingreso-card {
+  --ingreso-color: var(--accent);
+  position: relative;
+  background: var(--surface);
+  border-radius: 28px;
+  width: 920px;
+  max-width: 96vw;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: ingreso-resultado 0.35s var(--ease);
+}
+
+.ingreso-card:has(.ingreso-banner-rechazado) {
+  --ingreso-color: var(--danger);
+}
+
+/* Barra que se vacia mientras corre la cuenta regresiva.
+   Los 6s tienen que coincidir con SEGUNDOS_CIERRE de Ingreso.jsx */
+.ingreso-card::after {
+  content: '';
+  display: block;
+  height: 8px;
+  background: var(--ingreso-color);
+  transform-origin: left;
+  animation: ingreso-cuenta 6s linear forwards;
+}
+
+.ingreso-banner {
+  font-weight: 800;
+  font-size: 54px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  padding: 22px 20px;
+  color: white;
+}
+
+.ingreso-banner-aceptado {
+  background: linear-gradient(180deg, #12a04c, #0b7a39);
+}
+
+.ingreso-banner-rechazado {
+  background: linear-gradient(180deg, #df4343, #b82a2a);
+}
+
+.ingreso-datos {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 28px 34px 8px;
+}
+
+.ingreso-datos-icono {
+  width: 96px;
+  height: 96px;
+  padding: 14px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.ingreso-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ingreso-info p {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  font-size: 24px;
+  color: var(--text);
+  margin: 8px 0;
+}
+
+.ingreso-info strong {
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+.ingreso-visitas {
+  font-size: 22px;
+  text-align: center;
+  color: var(--ok-text);
+  background: var(--accent-soft);
+  margin: 14px 34px 0;
+  padding: 10px;
+  border-radius: var(--radius);
+}
+
+.ingreso-mensaje {
+  font-weight: 800;
+  font-size: 38px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--ingreso-color);
+  margin: 18px 0 4px;
+  padding: 0 20px;
+}
+
+.ingreso-contador {
+  font-size: 14px;
+  text-align: center;
+  color: var(--text-3);
+  margin: 8px 0 18px;
+}
+
+@keyframes ingreso-aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes ingreso-resultado {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+@keyframes ingreso-cuenta {
+  to {
+    transform: scaleX(0);
+  }
+}

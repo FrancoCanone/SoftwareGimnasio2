@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  obtenerIngresosPorMes,
-  obtenerAsistenciasPorMes,
-  obtenerTopAsistidores,
-  obtenerClientesActivos,
-} from '../api/estadisticas'
+import { obtenerIngresosPorMes,obtenerAsistenciasPorMes,obtenerTopAsistidores,obtenerClientesActivos } from '../api/estadisticas'
 import './Estadisticas.css'
 
 const NOMBRES_MES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
@@ -43,6 +38,8 @@ function GraficoBarras({ datos, obtenerValor, formatearValor, colorClase }) {
     </div>
   )
 }
+
+const MOSTRAR_INGRESOS = false
 
 function Estadisticas() {
   const [meses, setMeses] = useState(1)
@@ -112,10 +109,12 @@ function Estadisticas() {
       ) : (
         <>
           <section className="stats">
-            <article>
-              <span>Plata cobrada ({formatearPeriodo(meses)})</span>
-              <strong>{formatearMoneda(totalIngresos)}</strong>
-            </article>
+            {MOSTRAR_INGRESOS && (
+              <article>
+                <span>Plata cobrada ({formatearPeriodo(meses)})</span>
+                <strong>{formatearMoneda(totalIngresos)}</strong>
+              </article>
+            )}
             <article>
               <span>Asistencias ({formatearPeriodo(meses)})</span>
               <strong>{totalAsistencias}</strong>
@@ -127,19 +126,21 @@ function Estadisticas() {
           </section>
 
           <section className="work-area">
-            <div className="panel">
-              <h2>Plata ganada por mes</h2>
-              {ingresos.length === 0 ? (
-                <p className="panel-vacio">No hay pagos registrados en este periodo.</p>
-              ) : (
-                <GraficoBarras
-                  datos={ingresos}
-                  obtenerValor={(item) => Number(item.total)}
-                  formatearValor={formatearMoneda}
-                  colorClase="grafico-barra-verde"
-                />
-              )}
-            </div>
+            {MOSTRAR_INGRESOS && (
+              <div className="panel">
+                <h2>Plata ganada por mes</h2>
+                {ingresos.length === 0 ? (
+                  <p className="panel-vacio">No hay pagos registrados en este periodo.</p>
+                ) : (
+                  <GraficoBarras
+                    datos={ingresos}
+                    obtenerValor={(item) => Number(item.total)}
+                    formatearValor={formatearMoneda}
+                    colorClase="grafico-barra-verde"
+                  />
+                )}
+              </div>
+            )}
 
             <div className="panel">
               <h2>Asistencias por mes</h2>

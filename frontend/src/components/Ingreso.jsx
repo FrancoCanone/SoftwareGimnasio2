@@ -165,7 +165,8 @@ function Ingreso() {
 
       if (!ultimoPago) {
         const asistenciasPrevias = await obtenerAsistenciasDeCliente(cliente.id)
-        const visitasReales = asistenciasPrevias.filter((a) => a.estado === 'ACEPTADO').length
+        const diasUnicos = new Set(asistenciasPrevias.filter((a) => a.estado === 'ACEPTADO').map((a) => a.fechaHora.slice(0, 10)))
+        const visitasReales = diasUnicos.size
         setResultado({
           permitido: false,
           nombre: cliente.nombre,
@@ -183,7 +184,8 @@ function Ingreso() {
       const asistencia = await registrarAsistencia(cliente.id)
       const permitido = asistencia.estado === 'ACEPTADO'
       const asistenciasPrevias = await obtenerAsistenciasDeCliente(cliente.id)
-      const visitasReales = asistenciasPrevias.filter((a) => a.estado === 'ACEPTADO').length
+      const diasUnicos = new Set(asistenciasPrevias.filter((a) => a.estado === 'ACEPTADO').map((a) => a.fechaHora.slice(0, 10)))
+      const visitasReales = diasUnicos.size
 
       const canalEventos = new BroadcastChannel('gimnasio-eventos')
       canalEventos.postMessage({ tipo: 'asistencia-registrada' })

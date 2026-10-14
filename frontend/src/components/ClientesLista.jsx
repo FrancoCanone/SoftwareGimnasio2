@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { listarClientes, obtenerDetalleCliente, eliminarCliente } from '../api/clientes'
 import { importarRespaldo } from '../api/respaldo'
+import { actualizarPago, eliminarPago } from '../api/pagos'
+import { listarPlanesActivos } from '../api/planes'
 import ClienteForm from './ClienteForm'
+import CampoFecha from './CampoFecha'
 import { confirmar } from '../lib/confirmar'
 import { notificarExito } from '../lib/toasts'
 import './ClientesLista.css'
@@ -28,14 +31,22 @@ function formatearFecha(fechaIso) {
 }
 
 function ClientesLista() {
+
   const [clientes, setClientes] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
+
   const [textoBusqueda, setTextoBusqueda] = useState('')
 
   const [detalle, setDetalle] = useState(null)
   const [cargandoDetalle, setCargandoDetalle] = useState(false)
   const [clienteEditando, setClienteEditando] = useState(null)
+
+  const [planesActivos, setPlanesActivos] = useState([])
+  const [pagoEditando, setPagoEditando] = useState(null)
+  const [formPago, setFormPago] = useState({ planId: '', monto: '', metodoPago: '', fechaPago: '', observaciones: '' })
+  const [guardandoPago, setGuardandoPago] = useState(false)
+  const [errorPago, setErrorPago] = useState('')
 
   const inputArchivoRef = useRef(null)
   const [importando, setImportando] = useState(false)
@@ -103,8 +114,79 @@ function ClientesLista() {
     }
   }
 
-  function cerrarDetalle() {
+    function cerrarDetalle() {
     setDetalle(null)
+  }
+
+  async function recargarDetalle() {
+    if (!detalle) return
+    const datos = await obtenerDetalleCliente(detalle.cliente.id)
+    setDetalle(datos)
+  }
+
+  async function abrirEdicionPago(pago) {
+    setErrorPago('')
+    setPagoEditando(pago)
+    setFormPago({
+      planId: pago.plan.id,
+      monto: pago.monto,
+      metodoPago: pago.metodoPago,
+      fechaPago: pago.fechaPago,
+      observaciones: pago.observaciones || '',
+    })
+
+    if (planesActivos.length === 0) {
+      try {
+        const lista = await listarPlanesActivos()
+        setPlanesActivos(lista)
+      } catch (err) {
+        setErrorPago(err.message)
+      }
+    }
+  }
+
+  function cerrarEdicionPago() {
+    setPagoEditando(null)
+  }
+
+  async function guardarEdicionPago(evento) {
+    evento.preventDefault()
+    setGuardandoPago(true)
+    setErrorPago('')
+
+    try {
+      await actualizarPago(pagoEditando.id, {
+        clienteId: detalle.cliente.id,
+        planId: Number(formPago.planId),
+        monto: Number(formPago.monto),
+        metodoPago: formPago.metodoPago,
+        fechaPago: formPago.fechaPago,
+        observaciones: formPago.observaciones,
+      })
+      notificarExito('Pago actualizado')
+      setPagoEditando(null)
+      await recargarDetalle()
+    } catch (err) {
+      setErrorPago(err.message)
+    } finally {
+      setGuardandoPago(false)
+    }
+  }
+
+  async function manejarEliminarPago(pago) {
+    const confirmado = await confirmar(
+      `¿Eliminar este pago de $${pago.monto} del ${formatearFecha(pago.fechaPago)}?`,
+      { textoConfirmar: 'Eliminar' }
+    )
+    if (!confirmado) return
+
+    try {
+      await eliminarPago(pago.id)
+      notificarExito('Pago eliminado')
+      await recargarDetalle()
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   function editarCliente(cliente) {
@@ -315,7 +397,7 @@ function ClientesLista() {
 
                 <h3>Historial de pagos</h3>
 
-                {detalle.pagos.length === 0 ? (
+                                {detalle.pagos.length === 0 ? (
                   <p className="panel-vacio">Este cliente todavía no tiene pagos registrados.</p>
                 ) : (
                   <table className="tabla-panel">
@@ -326,6 +408,7 @@ function ClientesLista() {
                         <th>Plan</th>
                         <th>Monto</th>
                         <th>Método</th>
+                        <th></th>
                       </tr>
                     </thead>
 
@@ -337,6 +420,17 @@ function ClientesLista() {
                           <td>{pago.plan.nombre}</td>
                           <td>${pago.monto}</td>
                           <td>{pago.metodoPago}</td>
+                          <td className="planes-acciones">
+                            <button onClick={() => abrirEdicionPago(pago)} className="planes-link">
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => manejarEliminarPago(pago)}
+                              className="planes-link planes-link-borrar"
+                            >
+                              Eliminar
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -348,7 +442,7 @@ function ClientesLista() {
         </div>
       )}
 
-      {clienteEditando && (
+            {clienteEditando && (
         <div className="clientes-lista-overlay" onClick={cerrarEdicion}>
           <div className="clientes-lista-modal" onClick={(e) => e.stopPropagation()}>
             <div className="clientes-lista-modal-header">
@@ -363,6 +457,80 @@ function ClientesLista() {
               clienteEditar={clienteEditando}
               onGuardado={manejarGuardadoEdicion}
             />
+          </div>
+        </div>
+      )}
+
+      {pagoEditando && (
+        <div className="clientes-lista-overlay" onClick={cerrarEdicionPago}>
+          <div className="clientes-lista-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="clientes-lista-modal-header">
+              <h2>Editar pago</h2>
+              <button onClick={cerrarEdicionPago} className="clientes-lista-cerrar">
+                ✕
+              </button>
+            </div>
+
+            {errorPago && <p className="planes-alerta">{errorPago}</p>}
+
+            <form className="planes-form" onSubmit={guardarEdicionPago}>
+              <label className="planes-campo">
+                <span>Plan</span>
+                <select
+                  value={formPago.planId}
+                  onChange={(e) => setFormPago({ ...formPago, planId: e.target.value })}
+                  required
+                >
+                  <option value="" disabled>Seleccionar plan...</option>
+                  {planesActivos.map((plan) => (
+                    <option key={plan.id} value={plan.id}>
+                      {plan.nombre} (${plan.precio})
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="planes-campo">
+                <span>Monto</span>
+                <input
+                  type="number"
+                  value={formPago.monto}
+                  onChange={(e) => setFormPago({ ...formPago, monto: e.target.value })}
+                  required
+                />
+              </label>
+
+              <label className="planes-campo">
+                <span>Método de pago</span>
+                <select
+                  value={formPago.metodoPago}
+                  onChange={(e) => setFormPago({ ...formPago, metodoPago: e.target.value })}
+                >
+                  <option value="EFECTIVO">Efectivo</option>
+                  <option value="TRANSFERENCIA">Transferencia</option>
+                  <option value="TARJETA">Tarjeta</option>
+                </select>
+              </label>
+
+              <CampoFecha
+                label="Fecha de pago"
+                value={formPago.fechaPago}
+                onChange={(valor) => setFormPago({ ...formPago, fechaPago: valor })}
+                required
+              />
+
+              <label className="planes-campo">
+                <span>Observaciones</span>
+                <textarea
+                  value={formPago.observaciones}
+                  onChange={(e) => setFormPago({ ...formPago, observaciones: e.target.value })}
+                />
+              </label>
+
+              <button type="submit" className="primary" disabled={guardandoPago}>
+                {guardandoPago ? 'Guardando...' : 'Guardar cambios'}
+              </button>
+            </form>
           </div>
         </div>
       )}

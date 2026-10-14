@@ -45,3 +45,31 @@ export async function obtenerUltimoPagoCliente(clienteId) {
   const pagos = await respuesta.json()
   return pagos.length > 0 ? pagos[0] : null
 }
+
+export async function actualizarPago(id, datos) {
+  const respuesta = await fetch(`${BASE_URL}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(datos),
+  })
+
+  if (!respuesta.ok) {
+    let mensaje = 'No se pudo actualizar el pago'
+    try {
+      const cuerpo = await respuesta.json()
+      mensaje = cuerpo.mensaje || mensaje
+    } catch {
+      // idem al crear, el backend no siempre devuelve JSON en los errores
+    }
+    throw new Error(mensaje)
+  }
+
+  return respuesta.json()
+}
+
+export async function eliminarPago(id) {
+  const respuesta = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' })
+  if (!respuesta.ok) {
+    throw new Error('No se pudo eliminar el pago')
+  }
+}

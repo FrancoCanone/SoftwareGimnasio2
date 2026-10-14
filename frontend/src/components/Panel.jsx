@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { listarClientes } from '../api/clientes'
 import { listarAsistenciasHoy } from '../api/asistencias'
 import { listarCuotasVencidas } from '../api/pagos'
+import Icono from './Icono'
 import './Panel.css'
 
 function formatearHora(fechaHoraIso) {
@@ -25,7 +26,7 @@ function Panel() {
   const [cuotasVencidas, setCuotasVencidas] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
-  
+
 
   useEffect(() => {
     async function cargarDatos(esPrimeraVez) {
@@ -39,7 +40,7 @@ function Panel() {
           (a, b) => new Date(a.fechaHora) - new Date(b.fechaHora)
         )
 
-        
+
         setTotalClientes(clientes.length)
         setAsistenciasHoy(asistenciasOrdenadas)
         setCuotasVencidas(vencidas)
@@ -70,6 +71,9 @@ function Panel() {
     return <p className="panel-cargando">Cargando panel...</p>
   }
 
+  const clientesQueAsistieron = new Set(asistenciasHoy.map((a) => a.cliente.id)).size
+  const ingresosRechazados = asistenciasHoy.filter((a) => a.estado !== 'ACEPTADO').length
+
   return (
     <>
       <header className="topbar">
@@ -82,15 +86,39 @@ function Panel() {
       {error && <p className="panel-alerta">{error}</p>}
 
       <section className="stats">
-        <article>
-          <span>Clientes</span>
-          <strong>{totalClientes}</strong>
+        <article className="stat-con-icono">
+          <div className="stat-icono"><Icono nombre="clientes" size={22} /></div>
+          <div>
+            <span>Clientes</span>
+            <strong>{totalClientes ?? '-'}</strong>
+          </div>
+        </article>
+        <article className="stat-con-icono stat-azul">
+          <div className="stat-icono"><Icono nombre="check" size={22} /></div>
+          <div>
+            <span>Asistieron hoy</span>
+            <strong>{clientesQueAsistieron}</strong>
+          </div>
+        </article>
+        <article className="stat-con-icono stat-rojo">
+          <div className="stat-icono"><Icono nombre="rechazo" size={22} /></div>
+          <div>
+            <span>Ingresos rechazados hoy</span>
+            <strong>{ingresosRechazados}</strong>
+          </div>
+        </article>
+        <article className="stat-con-icono stat-ambar">
+          <div className="stat-icono"><Icono nombre="alerta" size={22} /></div>
+          <div>
+            <span>Cuotas vencidas</span>
+            <strong>{cuotasVencidas.length}</strong>
+          </div>
         </article>
       </section>
 
       <section className="work-area">
         <div className="panel">
-          <h2>Asistencias de hoy <span className="panel-contador">({new Set(asistenciasHoy.map((a) => a.cliente.id)).size})</span></h2>
+          <h2>Asistencias de hoy <span className="panel-contador">({clientesQueAsistieron})</span></h2>
           {asistenciasHoy.length === 0 ? (
             <p className="panel-vacio">Todavia no hay asistencias registradas hoy.</p>
           ) : (
