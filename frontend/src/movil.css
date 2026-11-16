@@ -1,0 +1,380 @@
+/* =========================================================
+   Celular (pantallas de hasta 760px)
+   Se importa al final de App.jsx para poder ajustar los estilos de todas las pantallas.
+   En la PC no cambia nada: fuera del @media, la barra de abajo y el encabezado quedan ocultos.
+   ========================================================= */
+.encabezado-movil,
+.barra-inferior,
+.hoja-mas-fondo {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  /* ---------- Estructura ---------- */
+  .sidebar {
+    display: none;
+  }
+
+  .encabezado-movil {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: 56px;
+    padding: 0 16px;
+    background: var(--sidebar-bg);
+    color: white;
+  }
+
+  .encabezado-movil .brand-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+
+  .encabezado-movil strong {
+    font-size: 16px;
+    font-weight: 650;
+  }
+
+  .content {
+    padding: 18px 14px calc(92px + env(safe-area-inset-bottom));
+  }
+
+  .topbar {
+    margin-bottom: 16px;
+  }
+
+  .topbar h1 {
+    font-size: 22px;
+  }
+
+  /* ---------- Barra de abajo ----------
+     Capas: encabezado 40, menu "Más" 42, barra 45, ventanas (detalle, editar) 50 */
+  .barra-inferior {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 45;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -6px 20px -12px rgba(16, 24, 20, 0.25);
+  }
+
+  .barra-inferior button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    border: 0;
+    background: none;
+    padding: 4px 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-3);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .barra-inferior .icono {
+    box-sizing: content-box;
+    padding: 3px 14px;
+    border-radius: 999px;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .barra-inferior button.active {
+    color: var(--accent);
+  }
+
+  .barra-inferior button.active .icono {
+    background: var(--accent-soft);
+  }
+
+  /* ---------- Menu "Más" (hoja que sube desde abajo) ---------- */
+  .hoja-mas-fondo {
+    display: flex;
+    align-items: flex-end;
+    position: fixed;
+    inset: 0;
+    z-index: 42;
+    background: rgba(14, 23, 18, 0.45);
+    animation: hoja-fondo 0.2s ease-out;
+  }
+
+  .hoja-mas {
+    width: 100%;
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    padding: 10px 14px calc(84px + env(safe-area-inset-bottom));
+    display: grid;
+    gap: 4px;
+    animation: hoja-subir 0.28s var(--ease);
+  }
+
+  .hoja-mas-agarre {
+    width: 38px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--border-strong);
+    margin: 0 auto 10px;
+  }
+
+  .hoja-mas button {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    border: 0;
+    background: none;
+    padding: 14px;
+    border-radius: var(--radius);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .hoja-mas button.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  .hoja-mas .etiqueta-version {
+    color: var(--text-3);
+  }
+
+  /* ---------- Tarjetas del panel ---------- */
+  .stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .stats article {
+    padding: 14px;
+  }
+
+  .stats article.stat-con-icono {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .stat-icono {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .stat-icono .icono {
+    width: 18px;
+    height: 18px;
+  }
+
+  .stats span {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .stats strong {
+    font-size: 24px;
+  }
+
+  .work-area {
+    gap: 12px;
+  }
+
+  .panel,
+  .planes-form,
+  .planes-tabla-contenedor,
+  .cliente-form {
+    padding: 16px;
+  }
+
+  /* ---------- Tablas como lista de tarjetas ---------- */
+  .tabla-scroll {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .tabla-panel,
+  .tabla-panel tbody {
+    display: block;
+  }
+
+  .tabla-panel thead {
+    display: none;
+  }
+
+  .tabla-panel tr {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .tabla-panel tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .tabla-panel td,
+  .tabla-panel tbody tr:hover td {
+    display: block;
+    flex: 1 1 40%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 14px;
+  }
+
+  /* Si la tarjeta tiene justo tres datos (ej. Hora, Estado, Asistencias), van en una sola fila */
+  .tabla-panel tr:has(> td:nth-child(4):last-child) td:not(:first-child),
+  .tabla-panel tr:has(> td.planes-acciones:nth-child(5)) td:not(:first-child):not(.planes-acciones) {
+    flex-basis: 26%;
+  }
+
+  /* Titulo chico arriba de cada dato, sacado del encabezado de la columna */
+  .tabla-panel td:not(:first-child)[data-label]:not([data-label=''])::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* La primera columna es el titulo de la tarjeta */
+  .tabla-panel td:first-child {
+    flex-basis: 100%;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* Botones Ver / Editar / Eliminar: fila propia y faciles de tocar */
+  .tabla-panel td.planes-acciones {
+    flex-basis: 100%;
+    display: flex;
+    gap: 8px;
+    text-align: left;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .tabla-panel td.planes-acciones .planes-link {
+    flex: 1;
+    padding: 9px 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  /* Ver clientes: nombre y apellido juntos como titulo */
+  .clientes-lista > .planes-tabla-contenedor .tabla-panel td:first-child {
+    flex: 0 0 auto;
+  }
+
+  .clientes-lista > .planes-tabla-contenedor .tabla-panel td:nth-child(2) {
+    flex: 1 1 50%;
+    margin-left: -10px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .clientes-lista > .planes-tabla-contenedor .tabla-panel td:nth-child(2)::before {
+    content: none;
+  }
+
+  /* Estadisticas: el puesto del ranking al lado del nombre */
+  .panel-ancho .tabla-panel td:first-child {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .panel-ancho .tabla-panel td:first-child::before {
+    content: '#';
+  }
+
+  .panel-ancho .tabla-panel td:nth-child(2) {
+    flex: 1 1 50%;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .panel-ancho .tabla-panel td:nth-child(2)::before {
+    content: none;
+  }
+
+  /* ---------- Buscador y botones de Ver clientes ---------- */
+  .clientes-lista-toolbar > .planes-boton-secundario {
+    flex: 1 1 0;
+    white-space: normal;
+    text-align: center;
+  }
+
+  /* ---------- Ventanas: suben desde abajo ---------- */
+  .clientes-lista-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .clientes-lista-modal {
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+    animation: hoja-subir 0.28s var(--ease);
+  }
+
+  /* ---------- Avisos ---------- */
+  .toast-contenedor {
+    top: 64px;
+    left: 12px;
+    right: 12px;
+    max-width: none;
+  }
+
+  .aviso-actualizacion {
+    left: 12px;
+    right: 12px;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    max-width: none;
+  }
+
+  /* En el celular, con letra de menos de 16px el navegador hace zoom al tocar un campo */
+  .planes-campo input,
+  .planes-campo textarea,
+  .planes-campo select,
+  .cliente-form-campo input,
+  .cliente-form-campo textarea,
+  .react-datepicker__input-container input,
+  .clientes-lista-buscador,
+  .estadisticas-selector {
+    font-size: 16px;
+  }
+}
+
+@keyframes hoja-fondo {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes hoja-subir {
+  from {
+    transform: translateY(100%);
+  }
+}

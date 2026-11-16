@@ -67,6 +67,13 @@ const TRAZOS = {
       <path d="M12 9v4M12 17h.01" />
     </>
   ),
+  mas: (
+    <>
+      <circle cx="5" cy="12" r="1.5" />
+      <circle cx="12" cy="12" r="1.5" />
+      <circle cx="19" cy="12" r="1.5" />
+    </>
+  ),
 }
 
 function Icono({ nombre, size = 18 }) {

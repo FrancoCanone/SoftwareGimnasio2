@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class ActualizacionController {
 
     public ActualizacionController(ActualizacionService servicio, ConfigurableApplicationContext contexto) {
         this.servicio = servicio;
-        this.contexto = contexto;
+        this.contexto = contexto; 
     }
 
     @GetMapping("/estado")
@@ -34,8 +35,8 @@ public class ActualizacionController {
     }
 
     @PostMapping("/aplicar")
-    public java.util.Map<String, Object> aplicar() {
-        java.util.Map<String, Object> resultado = new java.util.LinkedHashMap<>();
+    public Map<String, Object> aplicar() {
+        Map<String, Object> resultado = new LinkedHashMap<>();
 
         if (!servicio.isListaParaInstalar()) {
             resultado.put("ok", false);
@@ -44,7 +45,7 @@ public class ActualizacionController {
         }
 
         try {
-            new ProcessBuilder(servicio.getRutaInstalador(), "/quiet", "/norestart").start();
+            lanzarInstalador(servicio.getRutaInstalador());
         } catch (Exception e) {
             System.out.println("ERROR al lanzar el instalador: " + e.getMessage());
             e.printStackTrace();
@@ -64,5 +65,32 @@ public class ActualizacionController {
 
         resultado.put("ok", true);
         return resultado;
+    }
+
+    
+    private void lanzarInstalador(String rutaInstalador) throws Exception {
+        File instalador = new File(rutaInstalador);
+        File registro = new File(instalador.getParentFile(), "instalacion.log");
+
+        
+        String rutaPrograma = System.getProperty("jpackage.app-path");
+
+        StringBuilder script = new StringBuilder();
+        script.append("Start-Sleep -Seconds 3; ");
+        script.append("try { Start-Process -FilePath ").append(comillas(instalador.getAbsolutePath()))
+                
+                .append(" -ArgumentList '/passive','/norestart','/l*v',([char]34 + ").append(comillas(registro.getAbsolutePath())).append(" + [char]34)")
+                .append(" -Verb RunAs -Wait } catch { }; ");
+        if (rutaPrograma != null && !rutaPrograma.isBlank()) {
+            script.append("Start-Process -FilePath ").append(comillas(rutaPrograma));
+        }
+
+        new ProcessBuilder("powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
+                "-WindowStyle", "Hidden", "-Command", script.toString()).start();
+    }
+
+    
+    private static String comillas(String texto) {
+        return "'" + texto.replace("'", "''") + "'";
     }
 }

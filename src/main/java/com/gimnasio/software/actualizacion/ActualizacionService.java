@@ -91,7 +91,8 @@ public class ActualizacionService {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .timeout(Duration.ofMinutes(5))
+                    // El instalador pesa mas de 100 MB: con internet lento 5 minutos no alcanzaban
+                    .timeout(Duration.ofMinutes(30))
                     .build();
 
             HttpResponse<java.nio.file.Path> respuesta =

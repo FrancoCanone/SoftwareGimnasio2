@@ -25,7 +25,7 @@ function AvisoActualizacion() {
 
   async function manejarAplicar() {
     const confirmado = await confirmar(
-      `Hay una actualización lista (versión ${estado.versionDisponible}). El programa se va a cerrar solo para instalarla. Tenés que volver a abrirlo desde el acceso directo cuando termine. ¿Continuar?`,
+      `Hay una actualización lista (versión ${estado.versionDisponible}). El programa se va a cerrar para instalarla y Windows te va a pedir permiso: tocá "Sí". Cuando termine se vuelve a abrir solo. ¿Continuar?`,
       { textoConfirmar: 'Actualizar ahora' }
     )
     if (!confirmado) return

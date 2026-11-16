@@ -16,6 +16,15 @@ export async function cerrarPrograma() {
   await fetch('/api/sistema/cerrar', { method: 'POST' })
 }
 
+export async function avisarVentanaAbierta() {
+  await fetch('/api/sistema/ventana/abierta', { method: 'POST' }).catch(() => {})
+}
+
+// sendBeacon se usa porque sigue enviando el aviso aunque la ventana ya se este cerrando
+export function avisarVentanaCerrada() {
+  navigator.sendBeacon('/api/sistema/ventana/cerrada')
+}
+
 export async function marcarIngresoActivo() {
   await fetch('/api/sistema/ingreso/latido', { method: 'POST' }).catch(() => {})
 }
