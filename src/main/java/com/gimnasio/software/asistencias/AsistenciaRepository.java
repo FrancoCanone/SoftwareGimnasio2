@@ -16,9 +16,15 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Long> {
     @Query(value = "SELECT COUNT(*) FROM (SELECT DISTINCT cliente_id, DATE(fecha_hora) AS dia FROM asistencias) AS t", nativeQuery = true)
     long contarVisitasTotalesHistorico();
 
+    // Asistencias de un cliente = dias distintos en los que tuvo al menos un ingreso ACEPTADO.
+    // Es la misma regla en el panel, en la pantalla de ingreso y en el detalle del cliente.
     @Query(value = "SELECT cliente_id AS clienteId, COUNT(DISTINCT DATE(fecha_hora)) AS visitas " +
-            "FROM asistencias WHERE cliente_id IN :clienteIds GROUP BY cliente_id", nativeQuery = true)
+            "FROM asistencias WHERE estado = 'ACEPTADO' AND cliente_id IN :clienteIds GROUP BY cliente_id", nativeQuery = true)
     List<VisitasPorCliente> contarVisitasPorClientes(@Param("clienteIds") List<Long> clienteIds);
+
+    @Query(value = "SELECT COUNT(DISTINCT DATE(fecha_hora)) FROM asistencias " +
+            "WHERE estado = 'ACEPTADO' AND cliente_id = :clienteId", nativeQuery = true)
+    long contarVisitasDeCliente(@Param("clienteId") Long clienteId);
 
         @Query(value = "SELECT mes, COUNT(*) AS total FROM (" +
             "  SELECT DATE_FORMAT(fecha_hora, '%Y-%m') AS mes, cliente_id, DATE(fecha_hora) AS dia " +

@@ -73,3 +73,10 @@ export async function eliminarPago(id) {
     throw new Error('No se pudo eliminar el pago')
   }
 }
+export async function listarEstadosDeClientes() {
+  const respuesta = await fetch(`${BASE_URL}/estados`)
+  if (!respuesta.ok) {
+    throw new Error('No se pudo cargar el estado de las cuotas')
+  }
+  return respuesta.json()
+}

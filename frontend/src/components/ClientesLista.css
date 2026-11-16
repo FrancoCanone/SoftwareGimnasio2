@@ -13,6 +13,106 @@
   background-position: 13px center;
 }
 
+.clientes-lista-boton-filtros {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clientes-lista-boton-filtros.activo {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--ok-text);
+}
+
+.clientes-lista-filtros-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.clientes-lista-filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 4px 16px;
+  padding: 16px 16px 4px;
+  margin-bottom: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  animation: modal-fondo 0.15s ease-out;
+}
+
+.clientes-lista-filtros .cliente-form-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  margin-bottom: 14px;
+}
+
+.clientes-lista-filtros .react-datepicker-wrapper,
+.clientes-lista-filtros .react-datepicker__input-container input {
+  width: 100%;
+}
+
+.clientes-lista-rango {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.clientes-lista-rango input {
+  min-width: 0;
+}
+
+.clientes-lista-filtros-pie {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0 12px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.clientes-lista-estado {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.clientes-lista-estado.estado-activo {
+  background: var(--accent-soft);
+  color: var(--ok-text);
+}
+
+.clientes-lista-estado.estado-vencido {
+  background: var(--danger-soft);
+  color: var(--danger-text);
+}
+
+.clientes-lista-estado.estado-sin_pago {
+  background: var(--surface-2);
+  color: var(--text-3);
+  border: 1px solid var(--border);
+}
+
 /* ---------- Ventanas (detalle, editar cliente, editar pago) ---------- */
 .clientes-lista-overlay {
   position: fixed;

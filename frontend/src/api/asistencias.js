@@ -31,3 +31,11 @@ export async function obtenerAsistenciasDeCliente(clienteId) {
   }
   return respuesta.json()
 }
+export async function obtenerVisitasDeCliente(clienteId) {
+  const respuesta = await fetch(`${BASE_URL}/cliente/${clienteId}/visitas`)
+  if (!respuesta.ok) {
+    throw new Error('No se pudieron contar las asistencias del cliente')
+  }
+  const cuerpo = await respuesta.json()
+  return cuerpo.visitas
+}

@@ -24,6 +24,15 @@ public interface PagoRepository extends JpaRepository<Pago, Long> {
     """)
     List<Pago> findCuotasVencidas(@Param("hoy") LocalDate hoy, @Param("desde") LocalDate desde);
 
+    // Ultimo pago (el de vencimiento mas lejano) de cada cliente. Puede traer empates, se filtran en Java.
+    @Query("""
+        SELECT p FROM Pago p
+        WHERE p.fechaVencimiento = (
+            SELECT MAX(p2.fechaVencimiento) FROM Pago p2 WHERE p2.cliente = p.cliente
+        )
+    """)
+    List<Pago> findUltimoPagoDeCadaCliente();
+
     // Plata cobrada por mes (suma de "monto" agrupada por mes de fechaPago).
     @Query(value = "SELECT DATE_FORMAT(fecha_pago, '%Y-%m') AS mes, SUM(monto) AS total " +
             "FROM pagos WHERE fecha_pago >= :desde GROUP BY mes ORDER BY mes", nativeQuery = true)

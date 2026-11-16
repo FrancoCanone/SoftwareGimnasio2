@@ -67,6 +67,11 @@ const TRAZOS = {
       <path d="M12 9v4M12 17h.01" />
     </>
   ),
+  filtro: (
+    <>
+      <path d="M3 5h18M6 12h12M10 19h4" />
+    </>
+  ),
   mas: (
     <>
       <circle cx="5" cy="12" r="1.5" />

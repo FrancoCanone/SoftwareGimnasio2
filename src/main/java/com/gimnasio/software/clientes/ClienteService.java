@@ -79,7 +79,7 @@ public class ClienteService {
     public ClienteDetalleResponse obtenerDetalle(Long id) {
         Cliente cliente = buscarPorId(id);
         List<Pago> pagos = pagoRepository.findByClienteIdOrderByFechaPagoDesc(id);
-        long visitasTotales = asistenciaRepository.findByClienteIdOrderByFechaHoraDesc(id).size();
+        long visitasTotales = asistenciaRepository.contarVisitasDeCliente(id);
 
         return new ClienteDetalleResponse(cliente, pagos, visitasTotales);
     }

@@ -6,7 +6,9 @@ import com.gimnasio.software.planes.Plan;
 import com.gimnasio.software.planes.PlanRepository;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pagos")
@@ -54,8 +56,32 @@ public class PagoController {
                 clienteId,
                 estado,
                 ultimoPago.getFechaPago(),
-                ultimoPago.getFechaVencimiento()
+                ultimoPago.getFechaVencimiento(),
+                ultimoPago.getPlan().getId(),
+                ultimoPago.getPlan().getNombre()
         );
+    }
+
+    // Estado de la cuota de cada cliente que tiene al menos un pago (ACTIVO / VENCIDO).
+    // Los clientes que no aparecen en la lista no tienen pagos registrados.
+    @GetMapping("/estados")
+    public List<EstadoPagoResponse> estadosDeClientes() {
+        LocalDate hoy = LocalDate.now();
+        Map<Long, Pago> ultimoPorCliente = new LinkedHashMap<>();
+        for (Pago pago : pagoRepository.findUltimoPagoDeCadaCliente()) {
+            ultimoPorCliente.putIfAbsent(pago.getCliente().getId(), pago);
+        }
+
+        return ultimoPorCliente.values().stream()
+                .map(pago -> new EstadoPagoResponse(
+                        pago.getCliente().getId(),
+                        !pago.getFechaVencimiento().isBefore(hoy) ? "ACTIVO" : "VENCIDO",
+                        pago.getFechaPago(),
+                        pago.getFechaVencimiento(),
+                        pago.getPlan().getId(),
+                        pago.getPlan().getNombre()
+                ))
+                .toList();
     }
 
    @GetMapping("/vencidos")
@@ -129,6 +155,8 @@ public List<Pago> listarVencidos() {
         Long clienteId,
         String estado,
         LocalDate fechaPago,
-        LocalDate fechaVencimiento
+        LocalDate fechaVencimiento,
+        Long planId,
+        String planNombre
     ) {}
 }

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { listarClientes } from '../api/clientes'
 import { listarAsistenciasHoy } from '../api/asistencias'
-import { listarCuotasVencidas } from '../api/pagos'
+import { listarCuotasVencidas, listarEstadosDeClientes } from '../api/pagos'
 import Icono from './Icono'
 import './Panel.css'
 
@@ -21,7 +20,7 @@ function formatearObservacion(observacion) {
 }
 
 function Panel() {
-  const [totalClientes, setTotalClientes] = useState(null)
+  const [clientesActivos, setClientesActivos] = useState(null)
   const [asistenciasHoy, setAsistenciasHoy] = useState([])
   const [cuotasVencidas, setCuotasVencidas] = useState([])
   const [cargando, setCargando] = useState(true)
@@ -31,8 +30,8 @@ function Panel() {
   useEffect(() => {
     async function cargarDatos(esPrimeraVez) {
       try {
-        const [clientes, asistencias, vencidas] = await Promise.all([
-          listarClientes(),
+        const [estados, asistencias, vencidas] = await Promise.all([
+          listarEstadosDeClientes(),
           listarAsistenciasHoy(),
           listarCuotasVencidas(),
         ])
@@ -41,7 +40,7 @@ function Panel() {
         )
 
 
-        setTotalClientes(clientes.length)
+        setClientesActivos(estados.filter((e) => e.estado === 'ACTIVO').length)
         setAsistenciasHoy(asistenciasOrdenadas)
         setCuotasVencidas(vencidas)
       } catch (err) {
@@ -89,8 +88,8 @@ function Panel() {
         <article className="stat-con-icono">
           <div className="stat-icono"><Icono nombre="clientes" size={22} /></div>
           <div>
-            <span>Clientes</span>
-            <strong>{totalClientes ?? '-'}</strong>
+            <span>Clientes activos</span>
+            <strong>{clientesActivos ?? '-'}</strong>
           </div>
         </article>
         <article className="stat-con-icono stat-azul">

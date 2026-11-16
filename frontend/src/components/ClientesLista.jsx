@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { listarClientes, obtenerDetalleCliente, eliminarCliente } from '../api/clientes'
 import { importarRespaldo } from '../api/respaldo'
-import { actualizarPago, eliminarPago } from '../api/pagos'
+import { actualizarPago, eliminarPago, listarEstadosDeClientes } from '../api/pagos'
 import { listarPlanesActivos } from '../api/planes'
 import ClienteForm from './ClienteForm'
+import Icono from './Icono'
 import CampoFecha from './CampoFecha'
 import { confirmar } from '../lib/confirmar'
 import { notificarExito } from '../lib/toasts'
@@ -30,6 +31,26 @@ function formatearFecha(fechaIso) {
   return `${dia}/${mes}/${año}`
 }
 
+const FILTROS_VACIOS = {
+  estado: '',
+  plan: '',
+  edadDesde: '',
+  edadHasta: '',
+  ingresoDesde: '',
+  ingresoHasta: '',
+  orden: 'apellido',
+}
+
+const ETIQUETAS_ESTADO = {
+  ACTIVO: 'Activo',
+  VENCIDO: 'Vencido',
+  SIN_PAGO: 'Sin pago',
+}
+
+function compararTexto(a, b) {
+  return (a || '').localeCompare(b || '', 'es', { sensitivity: 'base' })
+}
+
 function ClientesLista() {
 
   const [clientes, setClientes] = useState([])
@@ -37,6 +58,9 @@ function ClientesLista() {
   const [error, setError] = useState('')
 
   const [textoBusqueda, setTextoBusqueda] = useState('')
+  const [estadosPorCliente, setEstadosPorCliente] = useState({})
+  const [mostrarFiltros, setMostrarFiltros] = useState(false)
+  const [filtros, setFiltros] = useState(FILTROS_VACIOS)
 
   const [detalle, setDetalle] = useState(null)
   const [cargandoDetalle, setCargandoDetalle] = useState(false)
@@ -91,13 +115,32 @@ function ClientesLista() {
   async function cargarClientes() {
     try {
       setCargando(true)
-      const lista = await listarClientes()
+      const [lista] = await Promise.all([listarClientes(), cargarEstados()])
       setClientes(lista)
     } catch (err) {
       setError(err.message)
     } finally {
       setCargando(false)
     }
+  }
+
+  async function cargarEstados() {
+    try {
+      const estados = await listarEstadosDeClientes()
+      const mapa = {}
+      for (const estado of estados) mapa[estado.clienteId] = estado
+      setEstadosPorCliente(mapa)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  function cambiarFiltro(campo, valor) {
+    setFiltros((anteriores) => ({ ...anteriores, [campo]: valor }))
+  }
+
+  function limpiarFiltros() {
+    setFiltros(FILTROS_VACIOS)
   }
 
   async function verDetalle(id) {
@@ -165,7 +208,7 @@ function ClientesLista() {
       })
       notificarExito('Pago actualizado')
       setPagoEditando(null)
-      await recargarDetalle()
+      await Promise.all([recargarDetalle(), cargarEstados()])
     } catch (err) {
       setErrorPago(err.message)
     } finally {
@@ -183,7 +226,7 @@ function ClientesLista() {
     try {
       await eliminarPago(pago.id)
       notificarExito('Pago eliminado')
-      await recargarDetalle()
+      await Promise.all([recargarDetalle(), cargarEstados()])
     } catch (err) {
       setError(err.message)
     }
@@ -224,16 +267,65 @@ function ClientesLista() {
 
   const palabras = textoBusqueda.trim().toLowerCase().split(/\s+/).filter(Boolean)
 
-  const clientesFiltrados =
-    palabras.length === 0
-      ? clientes
-      : clientes.filter((c) => {
-          const nombreCompleto = `${c.nombre} ${c.apellido}`.toLowerCase()
+  function estadoDe(cliente) {
+    return estadosPorCliente[cliente.id]?.estado || 'SIN_PAGO'
+  }
 
-          return palabras.every((palabra) =>
-            nombreCompleto.includes(palabra) || c.dni.includes(palabra)
-          )
-        })
+  const planesDisponibles = [
+    ...new Set(Object.values(estadosPorCliente).map((e) => e.planNombre).filter(Boolean)),
+  ].sort(compararTexto)
+
+  const cantidadFiltrosActivos = Object.keys(FILTROS_VACIOS).filter(
+    (campo) => campo !== 'orden' && filtros[campo] !== ''
+  ).length
+
+  const edadDesde = filtros.edadDesde === '' ? null : Number(filtros.edadDesde)
+  const edadHasta = filtros.edadHasta === '' ? null : Number(filtros.edadHasta)
+
+  const clientesFiltrados = clientes
+    .filter((c) => {
+      if (palabras.length > 0) {
+        const nombreCompleto = `${c.nombre} ${c.apellido}`.toLowerCase()
+        const coincide = palabras.every(
+          (palabra) => nombreCompleto.includes(palabra) || (c.dni || '').includes(palabra)
+        )
+        if (!coincide) return false
+      }
+
+      if (filtros.estado && estadoDe(c) !== filtros.estado) return false
+
+      if (filtros.plan && estadosPorCliente[c.id]?.planNombre !== filtros.plan) return false
+
+      if (edadDesde !== null || edadHasta !== null) {
+        const edad = calcularEdad(c.fechaNacimiento)
+        if (typeof edad !== 'number') return false
+        if (edadDesde !== null && edad < edadDesde) return false
+        if (edadHasta !== null && edad > edadHasta) return false
+      }
+
+      // las fechas ISO (aaaa-mm-dd) se pueden comparar como texto
+      if (filtros.ingresoDesde && (!c.fechaIngreso || c.fechaIngreso < filtros.ingresoDesde)) return false
+      if (filtros.ingresoHasta && (!c.fechaIngreso || c.fechaIngreso > filtros.ingresoHasta)) return false
+
+      return true
+    })
+    .sort((a, b) => {
+      switch (filtros.orden) {
+        case 'nombre':
+          return compararTexto(a.nombre, b.nombre) || compararTexto(a.apellido, b.apellido)
+        case 'ingresoReciente':
+          return compararTexto(b.fechaIngreso, a.fechaIngreso)
+        case 'ingresoAntiguo':
+          return compararTexto(a.fechaIngreso, b.fechaIngreso)
+        case 'vencimiento': {
+          const va = estadosPorCliente[a.id]?.fechaVencimiento || '9999-12-31'
+          const vb = estadosPorCliente[b.id]?.fechaVencimiento || '9999-12-31'
+          return compararTexto(va, vb)
+        }
+        default:
+          return compararTexto(a.apellido, b.apellido) || compararTexto(a.nombre, b.nombre)
+      }
+    })
 
   return (
     <div className="clientes-lista">
@@ -255,6 +347,19 @@ function ClientesLista() {
             value={textoBusqueda}
             onChange={(e) => setTextoBusqueda(e.target.value)}
           />
+
+          <button
+            type="button"
+            className={`planes-boton-secundario clientes-lista-boton-filtros${mostrarFiltros ? ' activo' : ''}`}
+            onClick={() => setMostrarFiltros((v) => !v)}
+            aria-expanded={mostrarFiltros}
+          >
+            <Icono nombre="filtro" size={16} />
+            Filtros
+            {cantidadFiltrosActivos > 0 && (
+              <span className="clientes-lista-filtros-contador">{cantidadFiltrosActivos}</span>
+            )}
+          </button>
 
           <a href="/api/respaldo/descargar" className="planes-boton-secundario">
             Descargar BDD completa
@@ -278,6 +383,87 @@ function ClientesLista() {
           />
         </div>
 
+        {mostrarFiltros && (
+          <div className="clientes-lista-filtros">
+            <label className="planes-campo">
+              <span>Estado de cuota</span>
+              <select value={filtros.estado} onChange={(e) => cambiarFiltro('estado', e.target.value)}>
+                <option value="">Todos</option>
+                <option value="ACTIVO">Activos</option>
+                <option value="VENCIDO">Vencidos</option>
+                <option value="SIN_PAGO">Sin pagos</option>
+              </select>
+            </label>
+
+            <label className="planes-campo">
+              <span>Plan</span>
+              <select value={filtros.plan} onChange={(e) => cambiarFiltro('plan', e.target.value)}>
+                <option value="">Todos</option>
+                {planesDisponibles.map((plan) => (
+                  <option key={plan} value={plan}>{plan}</option>
+                ))}
+              </select>
+            </label>
+
+            <div className="planes-campo">
+              <span>Edad</span>
+              <div className="clientes-lista-rango">
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Desde"
+                  value={filtros.edadDesde}
+                  onChange={(e) => cambiarFiltro('edadDesde', e.target.value)}
+                />
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Hasta"
+                  value={filtros.edadHasta}
+                  onChange={(e) => cambiarFiltro('edadHasta', e.target.value)}
+                />
+              </div>
+            </div>
+
+            <CampoFecha
+              label="Ingresó desde"
+              value={filtros.ingresoDesde}
+              onChange={(valor) => cambiarFiltro('ingresoDesde', valor)}
+            />
+
+            <CampoFecha
+              label="Ingresó hasta"
+              value={filtros.ingresoHasta}
+              onChange={(valor) => cambiarFiltro('ingresoHasta', valor)}
+            />
+
+            <label className="planes-campo">
+              <span>Ordenar por</span>
+              <select value={filtros.orden} onChange={(e) => cambiarFiltro('orden', e.target.value)}>
+                <option value="apellido">Apellido (A-Z)</option>
+                <option value="nombre">Nombre (A-Z)</option>
+                <option value="ingresoReciente">Ingreso más reciente</option>
+                <option value="ingresoAntiguo">Ingreso más antiguo</option>
+                <option value="vencimiento">Vencimiento más próximo</option>
+              </select>
+            </label>
+
+            <div className="clientes-lista-filtros-pie">
+              <span>
+                Mostrando {clientesFiltrados.length} de {clientes.length} clientes
+              </span>
+              <button
+                type="button"
+                className="planes-link"
+                onClick={limpiarFiltros}
+                disabled={cantidadFiltrosActivos === 0 && filtros.orden === FILTROS_VACIOS.orden}
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          </div>
+        )}
+
         {cargando ? (
           <p className="panel-cargando">Cargando clientes...</p>
         ) : clientesFiltrados.length === 0 ? (
@@ -293,6 +479,7 @@ function ClientesLista() {
                   <th>Celular</th>
                   <th>Edad</th>
                   <th>Fecha ingreso</th>
+                  <th>Estado</th>
                   <th></th>
                 </tr>
               </thead>
@@ -306,6 +493,11 @@ function ClientesLista() {
                     <td>{cliente.celular}</td>
                     <td>{calcularEdad(cliente.fechaNacimiento)}</td>
                     <td>{formatearFecha(cliente.fechaIngreso)}</td>
+                    <td>
+                      <span className={`clientes-lista-estado estado-${estadoDe(cliente).toLowerCase()}`}>
+                        {ETIQUETAS_ESTADO[estadoDe(cliente)]}
+                      </span>
+                    </td>
 
                     <td className="planes-acciones">
                       <button onClick={() => verDetalle(cliente.id)} className="planes-link">

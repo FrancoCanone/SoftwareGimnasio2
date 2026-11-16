@@ -50,6 +50,11 @@ public class AsistenciaController {
         return asistenciaRepository.findByClienteIdOrderByFechaHoraDesc(clienteId);
     }
 
+    @GetMapping("/cliente/{clienteId}/visitas")
+    public Map<String, Long> visitasDeCliente(@PathVariable Long clienteId) {
+        return Map.of("visitas", asistenciaRepository.contarVisitasDeCliente(clienteId));
+    }
+
     @GetMapping("/hoy")
     public List<AsistenciaHoyResponse> listarHoy() {
         LocalDate hoy = LocalDate.now();

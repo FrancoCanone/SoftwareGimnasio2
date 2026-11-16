@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { buscarClientePorDni } from '../api/clientes'
-import { registrarAsistencia, obtenerAsistenciasDeCliente } from '../api/asistencias'
+import { registrarAsistencia, obtenerVisitasDeCliente } from '../api/asistencias'
 import { obtenerUltimoPagoCliente } from '../api/pagos'
 import { marcarIngresoActivo, marcarIngresoCerrado } from '../api/sistema'
 import './Ingreso.css'
@@ -164,9 +164,7 @@ function Ingreso() {
       const ultimoPago = await obtenerUltimoPagoCliente(cliente.id)
 
       if (!ultimoPago) {
-        const asistenciasPrevias = await obtenerAsistenciasDeCliente(cliente.id)
-        const diasUnicos = new Set(asistenciasPrevias.filter((a) => a.estado === 'ACEPTADO').map((a) => a.fechaHora.slice(0, 10)))
-        const visitasReales = diasUnicos.size
+        const visitasReales = await obtenerVisitasDeCliente(cliente.id)
         setResultado({
           permitido: false,
           nombre: cliente.nombre,
@@ -183,9 +181,7 @@ function Ingreso() {
 
       const asistencia = await registrarAsistencia(cliente.id)
       const permitido = asistencia.estado === 'ACEPTADO'
-      const asistenciasPrevias = await obtenerAsistenciasDeCliente(cliente.id)
-      const diasUnicos = new Set(asistenciasPrevias.filter((a) => a.estado === 'ACEPTADO').map((a) => a.fechaHora.slice(0, 10)))
-      const visitasReales = diasUnicos.size
+      const visitasReales = await obtenerVisitasDeCliente(cliente.id)
 
       const canalEventos = new BroadcastChannel('gimnasio-eventos')
       canalEventos.postMessage({ tipo: 'asistencia-registrada' })
